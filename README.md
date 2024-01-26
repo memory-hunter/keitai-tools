@@ -1,0 +1,4 @@
+- reADFMulti.py - Converts P900i-esque _JAVA folder contents (ADF/JAR/SP) to .jam, .jar, .sp files
+- spfolder.py - Puts a header on every .sp file under a given directory
+- spheader.py - Puts a header on a single file
+- unpacker.py - For F and D phones, gets all the .jam/.jar/.sp files from a given directory and puts them together.
