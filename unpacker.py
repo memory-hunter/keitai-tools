@@ -9,11 +9,11 @@ def process_subdirectories(target_directory):
             continue
 
         for filename in files:
-            if "adf" in filename or "jam" in filename:
+            if "adf" in filename.lower() or "jam" in filename.lower():
                 new_filename = os.path.basename(root) + ".jam"
-            elif "sp" in filename:
+            elif "sp" in filename.lower():
                 new_filename = os.path.basename(root) + ".sp"
-            elif "jar" in filename:
+            elif "jar" in filename.lower():
                 new_filename = os.path.basename(root) + ".jar"
             else:
                 continue
