@@ -2,3 +2,4 @@
 - spfolder.py - Puts a header on every .sp file under a given directory
 - spheader.py - Puts a header on a single file
 - unpacker.py - For F and D phones, gets all the .jam/.jar/.sp files from a given directory and puts them together.
+- mexaedit.py - For softbank phone .jad files, changes the .jad file to be imported in the MEXA.
