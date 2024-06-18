@@ -79,10 +79,12 @@ AppParam = {app_params}
     with open(jam_file_path, 'w') as jam_file:
         jam_file.write(adf_template)
 
-    shutil.copy(jar_file_path, os.path.join(output_folder, f'jar{adf_base_name}.jar').replace('jar', ''))
+    new_jar_file_path = os.path.join(output_folder, f'jar{adf_base_name}.jar').replace('jar', '', 1)
+    shutil.copy(jar_file_path, new_jar_file_path)
     
     if os.path.exists(sp_file_path):
-        shutil.copy(sp_file_path, os.path.join(output_folder, f'sp{adf_base_name}.sp').replace('sp', ''))
+        new_sp_file_path = os.path.join(output_folder, f'sp{adf_base_name}.sp').replace('sp', '', 1)
+        shutil.copy(sp_file_path, new_sp_file_path)
 
     print(f"Successfully processed {adf_file_path}")
 
