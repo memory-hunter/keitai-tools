@@ -1,3 +1,4 @@
+import re
 import sys
 import os
 import datetime
@@ -60,7 +61,11 @@ def parse_adf(adf_file_path, jar_folder, sp_folder, output_folder, offset):
 
     arr = list(filter(None, arr))
     app_params = ' '.join(arr[:-2])
-
+    
+    date_pattern = r'\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun), \d{2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4} \d{2}:\d{2}:\d{2}\b'
+    match = re.search(date_pattern, app_params)
+    if match:
+        app_params = app_params[:match.start()]
     app_name = jar_file_path.split("\\")[-1]
 
     adf_template = f'''PackageURL = {package_url}
