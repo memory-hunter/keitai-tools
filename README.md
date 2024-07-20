@@ -3,3 +3,9 @@
 - spheader.py - Puts a header on a single file
 - unpacker.py - For F and D phones, gets all the .jam/.jar/.sp files from a given directory and puts them together.
 - mexaedit.py - For softbank phone .jad files, changes the .jad file to be imported in the MEXA.
+
+- convertForEmulator_*.py - Convert the selected ADF/JAR/SP raw folder for the emulator.
+  - p900i: for p900i, p900iV, n900i, n900is.
+  - p901is: for p901is.
+  - n904i: for n904i.
+  - n701i: for n701i.
