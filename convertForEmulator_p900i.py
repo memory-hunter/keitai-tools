@@ -152,13 +152,13 @@ def perse_adf(adf_content, start_jam):
             elif adf_item.startswith(("DoJa-1.0", "DoJa-2.0", "DoJa-2.1", "DoJa-2.2", "DoJa-3.0", "DoJa-3.5", "DoJa-4.0", "DoJa-4.1", "DoJa-5.0", "DoJa-5.1")):
                 adf_dict["ProfileVer"] = adf_item
             elif adf_item.startswith("http"):
-                jar_download_url = adf_item
+                jam_download_url = adf_item
             elif adf_item.endswith(".gif"):
                 adf_dict["AppIcon"] = adf_item
             else:
                 other_items.append(adf_item)
 
-    print(f"{adf_dict=}, {jar_download_url=}, {other_items=}")
+    print(f"{adf_dict=}, {jam_download_url=}, {other_items=}")
     return adf_dict
 
 def add_header_to_sp(jam_str, sp_contents):
