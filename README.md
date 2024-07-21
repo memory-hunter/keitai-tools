@@ -3,3 +3,5 @@
 - spheader.py - Puts a header on a single file
 - unpacker.py - For F and D phones, gets all the .jam/.jar/.sp files from a given directory and puts them together.
 - mexaedit.py - For softbank phone .jad files, changes the .jad file to be imported in the MEXA.
+- carvecramfs.py - courtesy of @xyzz, carves cramfs images from a given file.
+- strip*.py - Strips * bytes from a given file from the top, used to make files from DFE folder readable.
