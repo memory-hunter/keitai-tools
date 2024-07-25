@@ -1,48 +1,103 @@
 import os
 import shutil
 import sys
+import re
+import urllib.parse
 
-def process_subdirectories(target_directory):
-    for root, dirs, files in os.walk(target_directory):
-        # Process only immediate subdirectories
-        if root == target_directory:
-            continue
+def extract_base_name(content, filename):
+    folder_name = os.path.basename(os.path.dirname(filename))
+    package_url_match = re.search(rb'PackageURL.+?([^\r\n\/:*?"<>|]+)\.jar', content)
+    if package_url_match:
+        encoded_url = package_url_match.group(0).decode('utf-8', errors='ignore')
+        decoded_url = urllib.parse.unquote(encoded_url)
+        base_name_match = re.search(r'([^\r\n\/:*?"<>|]+)\.jar', decoded_url)
+        if base_name_match:
+            base_name = os.path.splitext(base_name_match.group(1))[0]
+        else:
+            base_name = folder_name
+    else:
+        base_name = folder_name
+    
+    print(base_name)
+    
+    if base_name.find('=') != -1:
+        base_name = base_name.split('=')[1].strip()
+    
+    return base_name if base_name else folder_name
 
-        for filename in files:
-            if "adf" in filename.lower() or "jam" in filename.lower():
-                new_filename = os.path.basename(root) + ".jam"
-            elif "sp" in filename.lower():
-                new_filename = os.path.basename(root) + ".sp"
-            elif "jar" in filename.lower():
-                new_filename = os.path.basename(root) + ".jar"
-            else:
-                continue
+def concatenate_sp_files(subfolder):
+    sp_files = sorted([f for f in os.listdir(subfolder) if f.lower().startswith('sp')])
+    if not sp_files:
+        return None
+    
+    concatenated_content = b''
+    for sp_file in sp_files:
+        sp_path = os.path.join(subfolder, sp_file)
+        with open(sp_path, 'rb') as f:
+            concatenated_content += f.read()
+        print(f"  Concatenated: {sp_file}")
+    
+    return concatenated_content
 
-            old_path = os.path.join(root, filename)
-            new_path = os.path.join(root, new_filename)
+def process_subdirectory(subfolder, target_directory):
+    print(f"\nProcessing directory: {subfolder}")
+    folder_name = os.path.basename(subfolder)
 
-            os.rename(old_path, new_path)
+    # Process JAM
+    jam_file = next((f for f in os.listdir(subfolder) if f.lower().endswith('.jam') or f.lower() == 'jam'), None)
+    if jam_file:
+        jam_path = os.path.join(subfolder, jam_file)
+        with open(jam_path, 'rb') as f:
+            content = f.read()
+        base_name = extract_base_name(content, jam_path)
+        if not base_name or base_name == '.':
+            base_name = folder_name
+        new_jam_path = os.path.join(target_directory, f"{base_name}.jam")
+        shutil.copy2(jam_path, new_jam_path)
+        print(f"JAM: {jam_path} => {new_jam_path}")
+    else:
+        print("No JAM file found. Using directory name as base name.")
+        base_name = folder_name
 
-        # Copy all contents to the top directory
-        destination_directory = target_directory
-        for item in os.listdir(root):
-            item_path = os.path.join(root, item)
-            destination_path = os.path.join(destination_directory, item)
+    # Process JAR
+    jar_files = [f for f in os.listdir(subfolder) if f.lower().endswith('.jar') or f.lower() in ['jar', 'fulljar', 'minijar']]
+    non_minijar_files = [f for f in jar_files if 'minijar' not in f.lower()]
+    
+    if non_minijar_files:
+        jar_file = non_minijar_files[0]
+    elif jar_files:
+        jar_file = jar_files[0]  # This will be the minijar if no other jars are found
+    else:
+        jar_file = None
 
-            if item.endswith((".jam", ".jar", ".sp")) and os.path.isfile(item_path):
-                shutil.copy2(item_path, destination_path)
+    if jar_file:
+        jar_path = os.path.join(subfolder, jar_file)
+        new_jar_path = os.path.join(target_directory, f"{base_name}.jar")
+        shutil.copy2(jar_path, new_jar_path)
+        print(f"JAR: {jar_path} => {new_jar_path}")
+
+    # Process SP
+    sp_content = concatenate_sp_files(subfolder)
+    if sp_content:
+        new_sp_path = os.path.join(target_directory, f"{base_name}.sp")
+        with open(new_sp_path, 'wb') as f:
+            f.write(sp_content)
+        print(f"SP: Concatenated SP files => {new_sp_path}")
+
+    # Remove the processed subdirectory
+    shutil.rmtree(subfolder)
+
+def process_main_directory(main_directory):
+    for item in os.listdir(main_directory):
+        item_path = os.path.join(main_directory, item)
+        if os.path.isdir(item_path):
+            process_subdirectory(item_path, main_directory)
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: python script.py <directory>")
+        print(f"Usage: python {sys.argv[0]} input_folder")
         sys.exit(1)
 
-    target_directory = sys.argv[1]
-    process_subdirectories(target_directory)
-
-    # Delete all directories except the root
-    for root, dirs, files in os.walk(target_directory, topdown=False):
-        for dir_name in dirs:
-            dir_path = os.path.join(root, dir_name)
-            if dir_path != target_directory:
-                shutil.rmtree(dir_path)
+    main_directory = sys.argv[1]
+    process_main_directory(main_directory)
+    print(f"\nAll done! => {main_directory}")
