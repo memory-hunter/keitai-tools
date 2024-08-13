@@ -12,7 +12,9 @@ def extract_app_name(adf_path):
         # Extract the filename without extension
         base_name = os.path.splitext(package_url_match.group(1).decode('utf-8', errors='ignore'))[0]
     else:
-        base_name = os.path.splitext(os.path.basename(adf_path))[0]
+        # get folder name of the adf folder
+        base_name = os.path.basename(os.path.dirname(adf_path))
+        
 
     if base_name.find('=') != -1:
         base_name = base_name.split('=')[1].strip()
