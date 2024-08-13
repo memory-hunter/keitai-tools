@@ -7,9 +7,17 @@ def process_apl_file(apl_path, output_dir):
     # Read the APL file
     with open(apl_path, 'rb') as f:
         content = f.read()
+    if content[39] == 0:
+        cut_index = 39
+    elif content[23] == 0:
+        cut_index = 23
+    else:
+        # Skip this file if no null byte is found at either position
+        print(f"Skipping file {apl_path}: No null byte found at 0x40 or 0x24")
+        return
 
-    # Remove the first 24 bytes
-    content = content[24:]
+    # Cut the content at the found position
+    content = content[cut_index + 1:]
 
     # Find the ZIP header (50 4B 03 04)
     zip_header_index = content.find(b'\x50\x4B\x03\x04')
@@ -18,15 +26,16 @@ def process_apl_file(apl_path, output_dir):
         print(f"Failed: No ZIP header found in {apl_path}")
         return
 
-    # Find the last 0D 0A before the ZIP header
-    last_crlf_index = content.rfind(b'\x0D\x0A', 0, zip_header_index)
+     # Find the first byte less than 0x0A before the ZIP header
+    match = re.search(rb'[\x00-\x09]', content[:zip_header_index])
     
-    if last_crlf_index == -1:
-        print(f"Failed: No CRLF found before ZIP header in {apl_path}")
+    if match:
+        last_crlf_index = match.start()
+        # Process the content up to this index
+        jam_content = content[:last_crlf_index]
+    else:
+        print(f"No byte less than 0x0A found before ZIP header in {apl_path}")
         return
-
-    # Extract JAM content (including the last CRLF)
-    jam_content = content[:last_crlf_index + 2]  # +2 to include the CRLF
 
     # Extract JAR content
     jar_content = content[zip_header_index:]
