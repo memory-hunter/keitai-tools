@@ -29,5 +29,6 @@ if __name__ == "__main__":
         print("Usage: python script.py <directory> bytes")
     else:
         directory = sys.argv[1]
+        n = int(sys.argv[2])
         process_directory(directory, n)
 # thanks chatgpt!
