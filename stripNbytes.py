@@ -25,7 +25,7 @@ def process_directory(directory, n):
 
 if __name__ == "__main__":
     import sys
-    if len(sys.argv) != 2:
+    if len(sys.argv) != 3:
         print("Usage: python script.py <directory> bytes")
     else:
         directory = sys.argv[1]
