@@ -38,9 +38,10 @@ def process_subdirectory(subfolder, target_directory):
             new_adf_path = os.path.join(target_directory, f"{base_name}.jam")
     
         with open(adf_path, 'rb') as adf:
-            adf.seek(0x5EBC)
             content = adf.read()
-    
+            # find last null byte and copy that part
+            last_null_byte = content.rfind(b'\x00')
+            content = content[last_null_byte+1:]
         with open(new_adf_path, 'wb') as new_adf:
             new_adf.write(content)
     
