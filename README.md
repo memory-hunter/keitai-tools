@@ -7,7 +7,7 @@
   - p900i: for p900i, p900iV, n900i, n900is.
   - p901is: for p901is.
   - n904i: for n904i.
-  - n701i: for n701i.
+  - n700i: for n700i, n701i.
 - convertForSH.py - Convert the APL/SCP raw folder for the emulator.
 - carvecramfs.py - courtesy of @xyzz, carves cramfs images from a given file.
 - strip*.py - Strips * bytes from a given file from the top, used to make files from DFE folder readable.

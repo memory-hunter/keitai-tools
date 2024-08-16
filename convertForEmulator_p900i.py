@@ -84,7 +84,14 @@ def convert(adf_content, jar_content, sp_content, start_spsize, start_jam):
         jam_str += f"{key} = {value}\n"
 
     jam_str += f"AppSize = {len(jar_content)}\n"
-    if len(sp_sizes): jam_str += f"SPsize = {','.join(map(str, sp_sizes))}\n"
+    
+    if len(sp_sizes) == 0:
+        print("WARM: SPsize is 0.")
+    elif len(sp_sizes) > 16:
+        print("WARM: SPsize detection failed.")
+    else:
+        jam_str += f"SPsize = {','.join(map(str, sp_sizes))}\n"
+    
     jam_str += f"UseNetwork = http\n"
     jam_str += f"UseBrowser = launch\n"
 
