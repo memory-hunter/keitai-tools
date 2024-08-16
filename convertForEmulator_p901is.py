@@ -54,9 +54,9 @@ def main(start_spsize, start_jam):
 
             new_adf_content, new_sp_content, jar_name = convertForEmulator_p900i.convert(adf_content, jar_content, sp_content, start_spsize, start_jam)
 
-            new_jam_file_path = os.path.join(output_folder, f'{file_number_str}_{jar_name}.jam')
-            new_jar_file_path = os.path.join(output_folder, f'{file_number_str}_{jar_name}.jar')
-            new_sp_file_path = os.path.join(output_folder, f'{file_number_str}_{jar_name}.sp')
+            new_jam_file_path = os.path.join(output_folder, f'{jar_name}.jam')
+            new_jar_file_path = os.path.join(output_folder, f'{jar_name}.jar')
+            new_sp_file_path = os.path.join(output_folder, f'{jar_name}.sp')
                 
             with open(new_jam_file_path, 'wb') as adf_file:
                 adf_file.write(new_adf_content)
