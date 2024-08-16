@@ -9,7 +9,7 @@ import email.utils
 import traceback
 import convertForEmulator_p900i
 
-START_SPSIZE = 0xE8
+START_SPSIZE = 0xB8
 START_JAM = 0x184
 
 def main(start_spsize, start_jam):
