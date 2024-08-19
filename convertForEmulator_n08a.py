@@ -60,8 +60,12 @@ def main(start_spsize, start_jam):
             shutil.copy(adf_file_path, new_jam_file_path)
             # if new sp size < 64 bytes, skip writing the file
             if len(new_sp_file) > 64:
-                with open(new_sp_file_path, 'wb') as sp_file:
-                    sp_file.write(new_sp_file)
+                try:
+                    with open(new_sp_file_path, 'wb') as sp_file:
+                        sp_file.write(new_sp_file)
+                except Exception as e:
+                    print(f"Failed to write SP file: {e}, it may not exist. Continuing...")
+                    continue
 
             print(f"Successfully processed!")
         except Exception as e:
