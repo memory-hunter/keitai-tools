@@ -21,13 +21,9 @@ class DFType(PhoneType):
         :param top_folder_directory: Top folder directory to extract games from.
         """
         
-        self.duplicate_count = 0
-        self.encodings = ['cp932', 'utf-8']
-        
         def process_subdirectory(subfolder, target_directory):
             
             if verbose:
-                # print long line of dashes
                 print('-'*80)
             
             # List all files
@@ -149,13 +145,16 @@ class DFType(PhoneType):
         # Check if the subfolder names have at least 1 digit in them (0-9) or an underscore optionally
         # Check if the subfolders contain a JAM file
         # Check if the subfolders contain a JAR file of any kind
+        
         if verbose:
             print(f"Testing structure of {top_folder_directory} for D/F phone type.")
-        for folder in os.listdir(top_folder_directory):
+            
+        subdirs = [f for f in os.listdir(top_folder_directory) if os.path.isdir(os.path.join(top_folder_directory, f))]
+        if len(subdirs) == 0:
+            return None
+        for folder in subdirs:
             if not any(c.isdigit() or c == '_' for c in folder):
-                if verbose:
-                    print(f"Warning: Subfolder {folder} does not contain numbers.")
-                return False
+                return None
             folder_path = os.path.join(top_folder_directory, folder)
             if not os.path.isdir(folder_path):
                 continue
@@ -163,16 +162,10 @@ class DFType(PhoneType):
             if len(files) == 0:
                 continue
             if not any(f.lower() == 'jam' for f in files):
-                if verbose:
-                    print(f"Warning: Subfolder {folder} does not contain a JAM file.")
-                return False
+                return None
             valid_jar_names = {'jar', 'fulljar', 'minijar'}
             if not any(f.lower() in valid_jar_names or f.lower().endswith('.jar') for f in files):
-                if verbose:
-                    print(f"Warning: Subfolder {folder} does not contain a JAR file.")
-                return False
-        if verbose:
-            print("Structure test passed. Detected D/F phone type.")
-        return True
+                return None
+        return "D/F"
             
         
