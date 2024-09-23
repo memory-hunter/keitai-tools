@@ -1,4 +1,5 @@
 from phonetypes.DFType import DFType
+from phonetypes.SHType import SHType
 import os
 import argparse
 
@@ -12,13 +13,14 @@ def main():
     print(f"Verbose mode is {'on' if args.verbose else 'off'}")
     
     # Testing the structure of the top folder directory to see which phone type it is
-    phone_types = [DFType()]
+    phone_types = [DFType(), SHType()]
     
     test_result = False
     
     for phone_type in phone_types:
         test_result = phone_type.test_structure(args.top_folder_directory, verbose=args.verbose)
         if test_result:
+            print(f"Top folder directory {args.top_folder_directory} seems to be of {test_result} phone type.")
             break
         
     if not test_result:
@@ -28,7 +30,12 @@ def main():
     print(f"Extracting from {args.top_folder_directory}\n")
     
     # Extract the games from the top folder directory
-    DFType().extract(os.path.abspath(args.top_folder_directory), verbose=args.verbose)
+    phone_type = None
+    if test_result == "D/F":
+        phone_type = DFType()
+    elif test_result == "SH":
+        phone_type = SHType()
+    phone_type.extract(os.path.abspath(args.top_folder_directory), verbose=args.verbose)
 
 if __name__ == '__main__':
     main()
