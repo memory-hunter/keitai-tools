@@ -59,22 +59,34 @@ class DFType(PhoneType):
             # Get the properties from the JAM file
             jam_props = parse_props_plaintext(jam_file, verbose=verbose)
             
+            package_url = None
+            try:
+                package_url = jam_props['PackageURL']
+            except KeyError:
+                    if verbose:
+                        print(f"Warning: No PackageURL found in JAM file.")
+            
             # Determine valid name for the app
             app_name = None
-            package_url_candidates = [value for value in jam_props.values() if value.find('http') != -1 and value.find(' ') == -1]
-            for package_url in package_url_candidates:
+            if package_url:
                 try:
                     app_name = parse_valid_name(package_url, verbose=verbose)
                 except ValueError as e:
                     if verbose:
                         print(f"Warning: {e.args[0]}")
-                except KeyError:
+            
+            if not app_name:
+                package_url_candidates = [value for value in jam_props.values() if value.find('http') != -1 and value.find(' ') == -1]
+                for package_url in package_url_candidates:
+                    try:
+                        app_name = parse_valid_name(package_url, verbose=verbose)
+                    except ValueError as e:
+                        if verbose:
+                            print(f"Warning: {e.args[0]}")
+                if app_name is None:
                     if verbose:
-                        print(f"Warning: No PackageURL found in JAM file.")
-            if app_name is None:
-                if verbose:
-                    print(f"Warning: No valid app name found in {jam_file_path}. Using base folder name.")
-                    app_name = f'{os.path.basename(subfolder)}'
+                        print(f"Warning: No valid app name found in {jam_file_path}. Using base folder name.")
+                        app_name = f'{os.path.basename(subfolder)}'
                 
             # Check there is no duplicate app name existing in the target directory
             if os.path.exists(os.path.join(target_directory, f"{app_name}.jam")):
