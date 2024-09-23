@@ -9,14 +9,26 @@ def main():
     parser.add_argument('--verbose', action='store_true', help='Print more information.')
     args = parser.parse_args()
     
-    # Create a D or F phone type object
-    phone_type = DFType()
-    
     print(f"Verbose mode is {'on' if args.verbose else 'off'}")
+    
+    # Testing the structure of the top folder directory to see which phone type it is
+    phone_types = [DFType()]
+    
+    test_result = False
+    
+    for phone_type in phone_types:
+        test_result = phone_type.test_structure(args.top_folder_directory, verbose=args.verbose)
+        if test_result:
+            break
+        
+    if not test_result:
+        print(f"Top folder directory {args.top_folder_directory} does not seem to be of any type phone. Quitting.")
+        return
+    
     print(f"Extracting from {args.top_folder_directory}\n")
     
     # Extract the games from the top folder directory
-    phone_type.extract(os.path.abspath(args.top_folder_directory), verbose=args.verbose)
+    DFType().extract(os.path.abspath(args.top_folder_directory), verbose=args.verbose)
 
 if __name__ == '__main__':
     main()
