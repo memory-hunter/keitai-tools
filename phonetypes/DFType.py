@@ -14,6 +14,7 @@ class DFType(PhoneType):
     """
     
     def extract(self, top_folder_directory, verbose=False):
+        
         """
         Extract games from the top folder directory in a D or F phone file structure.
         
@@ -79,7 +80,7 @@ class DFType(PhoneType):
             if os.path.exists(os.path.join(target_directory, f"{app_name}.jam")):
                 if verbose:
                     print(f"Warning: {app_name}.jam already exists in {target_directory}.")
-                app_name = f"{app_name}_{self.duplicate_count+1}_"
+                app_name = f"{app_name}_{self.duplicate_count+1}"
                 self.duplicate_count += 1                
             
             # Copy over JAM file with app name
@@ -87,13 +88,13 @@ class DFType(PhoneType):
             dst = os.path.join(target_directory, f"{app_name}.jam")
             shutil.copy2(src, dst)
             
-            # Find jar files, could be "jar" or ()"fulljar" and/or "minijar")
+            # Find jar files, could be "jar" or ("fulljar" and/or "minijar")
             jar_files = [f for f in files if f.lower() in ['jar', 'fulljar', 'minijar']]
             
             # Copy over jar files, name jar and fulljar files with app name, for minijar, use app name + "_mini"
             for jar_file in jar_files:
                 if 'minijar' in jar_file.lower():
-                    shutil.copy2(os.path.join(subfolder, jar_file), os.path.join(target_directory, f"{app_name}mini.jar"))
+                    shutil.copy2(os.path.join(subfolder, jar_file), os.path.join(target_directory, f"{app_name}_mini.jar"))
                 else:
                     shutil.copy2(os.path.join(subfolder, jar_file), os.path.join(target_directory, f"{app_name}.jar"))
                     
@@ -123,3 +124,43 @@ class DFType(PhoneType):
             if os.path.isdir(folder_path):
                 # Process the subdirectory and output into folder "output" at the same level as top level directory
                 process_subdirectory(folder_path, target_directory)
+                
+    def test_structure(self, top_folder_directory, verbose=False) -> bool:
+        """
+        Test the structure of the top folder directory to see if it is a D/F type.
+        
+        :param top_folder_directory: Top folder directory to test the structure of.
+        
+        :return: True if the structure is of D/F type, False otherwise.
+        """
+        
+        # Check if the subfolder names have at least 1 digit in them (0-9) or an underscore optionally
+        # Check if the subfolders contain a JAM file
+        # Check if the subfolders contain a JAR file of any kind
+        if verbose:
+            print(f"Testing structure of {top_folder_directory} for D/F phone type.")
+        for folder in os.listdir(top_folder_directory):
+            if not any(c.isdigit() or c == '_' for c in folder):
+                if verbose:
+                    print(f"Warning: Subfolder {folder} does not contain numbers.")
+                return False
+            folder_path = os.path.join(top_folder_directory, folder)
+            if not os.path.isdir(folder_path):
+                continue
+            files = os.listdir(folder_path)
+            if len(files) == 0:
+                continue
+            if not any(f.lower() == 'jam' for f in files):
+                if verbose:
+                    print(f"Warning: Subfolder {folder} does not contain a JAM file.")
+                return False
+            valid_jar_names = {'jar', 'fulljar', 'minijar'}
+            if not any(f.lower() in valid_jar_names or f.lower().endswith('.jar') for f in files):
+                if verbose:
+                    print(f"Warning: Subfolder {folder} does not contain a JAR file.")
+                return False
+        if verbose:
+            print("Structure test passed. Detected D/F phone type.")
+        return True
+            
+        
