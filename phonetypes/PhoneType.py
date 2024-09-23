@@ -4,8 +4,14 @@ class PhoneType(ABC):
     """
     An abstract class to represent a phone type with its extraction method.
     """
+    
+    def __init__(self):
+        """
+        Initialize the phone type.
+        """
+        self.duplicate_count = 0
+        self.encodings = ['cp932', 'utf-8']
 
-    @staticmethod
     @abstractmethod
     def extract(self, top_folder_directory, verbose=False):
         """
