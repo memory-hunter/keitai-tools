@@ -105,8 +105,9 @@ class DFType(PhoneType):
                     concatenated_content += f.read()
             
             # Write concatenated content to a file
-            with open(os.path.join(target_directory, f"{app_name}.sp"), 'wb') as wf:
-                wf.write(concatenated_content)
+            if concatenated_content != b'':
+                with open(os.path.join(target_directory, f"{app_name}.sp"), 'wb') as wf:
+                    wf.write(concatenated_content)
                 
             if verbose:
                 print(f"Processed: {subfolder} -> {app_name}\n")
