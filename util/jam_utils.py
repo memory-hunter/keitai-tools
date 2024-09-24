@@ -62,7 +62,7 @@ def parse_props_00(adf_content, sp_start_offset, adf_start_offset, verbose=False
     sp_sizes = read_spsize_00(adf_content, sp_start_offset, verbose=verbose)
     
     # Format it into JAM string
-    adf_dict["SPsize"] = ", ".join(map(str, sp_sizes))
+    adf_dict["SPsize"] = ",".join(map(str, sp_sizes))
 
     if verbose:
         print("ADF contents found:")
@@ -172,7 +172,7 @@ def fmt_plaintext_jam(adf_dict) -> str:
     """
     jam = ""
     for key, value in adf_dict.items():
-        jam += f"{key}={value}\n"
+        jam += f"{key} = {value}\n"
     return jam
 
 def fmt_spsize_header(sp_size_list) -> bytes:
