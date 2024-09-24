@@ -2,7 +2,7 @@ from phonetypes.PhoneType import PhoneType
 import os
 import struct
 import shutil
-from util.jam_utils import parse_props_plaintext, parse_valid_name
+from util.jam_utils import parse_props_plaintext, parse_valid_name, fmt_spsize_header
 from util.structure_utils import create_target_folder
 
 class SHType(PhoneType):
@@ -135,7 +135,14 @@ class SHType(PhoneType):
                 # Check if there exists .scp file with the same name, if exists, copy to target directory with .sp extension
                 scp_file_path = os.path.join(os.path.dirname(apl_file_path), f"{apl_name}.scp")
                 if os.path.exists(scp_file_path):
-                    shutil.copy(scp_file_path, os.path.join(target_directory, f"{app_name}.sp"))
+                    # Get the SPsize string from props and make , delimited integer list
+                    sp_sizes = jam_props['SPsize'].split(',')
+                    sp_sizes = [int(sp_size) for sp_size in sp_sizes]
+                    header = fmt_spsize_header(sp_sizes)
+                    with open(scp_file_path, 'rb') as scp_file:
+                        with open(os.path.join(target_directory, f"{app_name}.sp"), 'wb') as f:
+                            f.write(header)
+                            f.write(scp_file.read())
                     
                 # Write the JAM file with app name
                 if jam_size > 0:

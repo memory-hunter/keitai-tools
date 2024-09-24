@@ -2,7 +2,7 @@ from phonetypes.PhoneType import PhoneType
 import os
 import struct
 import shutil
-from util.jam_utils import parse_valid_name, parse_props_00, fmt_plaintext_jam
+from util.jam_utils import parse_valid_name, parse_props_00, fmt_plaintext_jam, fmt_spsize_header
 from util.structure_utils import create_target_folder
 
 class Null3FolderType(PhoneType):
@@ -111,7 +111,13 @@ class Null3FolderType(PhoneType):
             # Copy JAR and SP files
             shutil.copy(jar_file, os.path.join(target_directory, f"{app_name}.jar"))
             if os.path.exists(sp_file):
-                shutil.copy(sp_file, os.path.join(target_directory, f"{app_name}.sp"))
+                sp_size_list = jam_props['SPsize'].split(',')
+                sp_size_list = [int(sp_size) for sp_size in sp_size_list]
+                sp_header = fmt_spsize_header(sp_size_list)
+                with open(sp_file, 'rb') as sp:
+                    with open(os.path.join(target_directory, f"{app_name}.sp"), 'wb') as f:
+                        f.write(sp_header)
+                        f.write(sp.read())
             
             if verbose:
                 print(f"Processed: {adf_file} -> {app_name}\n")

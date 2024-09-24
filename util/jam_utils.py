@@ -62,7 +62,7 @@ def parse_props_00(adf_content, sp_start_offset, adf_start_offset, verbose=False
     sp_sizes = read_spsize_00(adf_content, sp_start_offset, verbose=verbose)
     
     # Format it into JAM string
-    adf_dict["SPSize"] = ", ".join(map(str, sp_sizes))
+    adf_dict["SPsize"] = ", ".join(map(str, sp_sizes))
 
     if verbose:
         print("ADF contents found:")
@@ -162,7 +162,7 @@ def parse_valid_name(package_url, verbose=False) -> str:
         raise ValueError(f"No valid app name found in {package_url}")
     return os.path.splitext(result)[0]
 
-def fmt_plaintext_jam(adf_dict):
+def fmt_plaintext_jam(adf_dict) -> str:
     """
     Format ADF dictionary into plaintext JAM format.
     
@@ -174,3 +174,19 @@ def fmt_plaintext_jam(adf_dict):
     for key, value in adf_dict.items():
         jam += f"{key}={value}\n"
     return jam
+
+def fmt_spsize_header(sp_size_list) -> bytes:
+    """
+    Format SP sizes into header format.
+    Format: SP sizes in 4 bytes each, if not 64 bytes overall, append 0xFFFFFFFF
+    
+    :param sp_size_list: List of SP sizes
+    
+    :return: Header format of SP sizes
+    """
+    sp_size_header = b""
+    for sp_size in sp_size_list:
+        sp_size_header += struct.pack('<I', sp_size)
+    while len(sp_size_header) < 64:
+        sp_size_header += b"\xFF\xFF\xFF\xFF"
+    return sp_size_header

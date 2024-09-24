@@ -1,7 +1,7 @@
 from phonetypes.PhoneType import PhoneType
 import os
 import shutil
-from util.jam_utils import parse_props_plaintext, parse_valid_name
+from util.jam_utils import parse_props_plaintext, parse_valid_name, fmt_spsize_header
 from util.structure_utils import create_target_folder
 
 class DFType(PhoneType):
@@ -115,7 +115,11 @@ class DFType(PhoneType):
             
             # Write concatenated content to a file
             if concatenated_content != b'':
+                sp_size_list = jam_props['SPsize'].split(',')
+                sp_size_list = [int(sp_size) for sp_size in sp_size_list]
+                header = fmt_spsize_header(sp_size_list)
                 with open(os.path.join(target_directory, f"{app_name}.sp"), 'wb') as wf:
+                    wf.writable(header)
                     wf.write(concatenated_content)
                 
             if verbose:
