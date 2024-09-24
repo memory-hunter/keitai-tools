@@ -1,5 +1,6 @@
 from phonetypes.DFType import DFType
 from phonetypes.SHType import SHType
+from phonetypes.Null3FolderType import Null3FolderType
 import os
 import argparse
 
@@ -13,12 +14,12 @@ def main():
     print(f"Verbose mode is {'on' if args.verbose else 'off'}")
     
     # Testing the structure of the top folder directory to see which phone type it is
-    phone_types = [DFType(), SHType()]
+    phone_types = [DFType(), SHType(), Null3FolderType()]
     
     test_result = False
     
     for phone_type in phone_types:
-        test_result = phone_type.test_structure(args.top_folder_directory, verbose=args.verbose)
+        test_result = phone_type.test_structure(args.top_folder_directory)
         if test_result:
             print(f"Top folder directory {args.top_folder_directory} seems to be of {test_result} phone type.")
             break
@@ -35,6 +36,8 @@ def main():
         phone_type = DFType()
     elif test_result == "SH":
         phone_type = SHType()
+    elif test_result == "Null3Folder":
+        phone_type = Null3FolderType()
     phone_type.extract(os.path.abspath(args.top_folder_directory), verbose=args.verbose)
 
 if __name__ == '__main__':

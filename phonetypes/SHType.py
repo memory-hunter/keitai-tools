@@ -3,10 +3,11 @@ import os
 import struct
 import shutil
 from util.jam_utils import parse_props_plaintext, parse_valid_name
+from util.structure_utils import create_target_folder
 
 class SHType(PhoneType):
     """
-    A class to represent a SH phone with its extraction method.
+    A class to represent a SH phone type of structure with its extraction method.
     
     Description:
     - Top folder contains .apl and .scp files with same names.
@@ -27,10 +28,7 @@ class SHType(PhoneType):
         :param top_folder_directory: Top folder directory to extract games from.
         """
         
-        # Create the target directory at the same level as the top folder directory
-        target_directory = os.path.join(os.path.dirname(top_folder_directory), 'output')
-        if not os.path.exists(target_directory):
-            os.makedirs(target_directory)
+        target_directory = create_target_folder(top_folder_directory)
         
         def process_file(apl_file_path):
             if verbose:
@@ -167,7 +165,7 @@ class SHType(PhoneType):
             apl_file_path = os.path.join(top_folder_directory, apl_file)
             process_file(apl_file_path)
         
-    def test_structure(self, top_folder_directory, verbose=False):  
+    def test_structure(self, top_folder_directory):  
         """
         Test if the top folder directory is of a SH phone file structure.
         

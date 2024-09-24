@@ -11,6 +11,18 @@ class PhoneType(ABC):
         """
         self.duplicate_count = 0
         self.encodings = ['cp932', 'utf-8']
+        self.null_type_offsets = [
+            (0x8C, 0xD4),
+            (0xD4, 0x1C0),
+            (0x94, 0xDC),
+            (0xB8, 0x184),
+            (0x94, 0x160),
+        ]
+        self.plaintext_cutoff_offsets = [
+            0x9B4,
+            0x990,
+            0x9B8,
+        ]
 
     @abstractmethod
     def extract(self, top_folder_directory, verbose=False):
@@ -23,7 +35,7 @@ class PhoneType(ABC):
     
     @staticmethod
     @abstractmethod
-    def test_structure(self, top_folder_directory, verbose=False):
+    def test_structure(self, top_folder_directory):
         """
         Abstract method to test the structure of the top folder directory to see if it is of corresponding phone type.
         

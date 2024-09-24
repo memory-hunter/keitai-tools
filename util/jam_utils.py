@@ -6,18 +6,18 @@ import struct
 import os
 from urllib.parse import urlparse, parse_qs
 
-def parse_props_00(adf_content, start_jam, verbose=False) -> dict:
+def parse_props_00(adf_content, sp_start_offset, adf_start_offset, verbose=False) -> dict:
     """
     Parse null delimited ADF file and return a dictionary of its contents.
     
     :param adf_content: Null delimited ADF file content
-    :param start_jam: Start offset of JAM section
+    :param adf_start_offset: Start offset of JAM section
     
     :return: A dictionary of ADF contents
     """
     adf_dict = {}
     
-    adf_items = filter(None, adf_content[start_jam:].split(b"\00"))
+    adf_items = filter(None, adf_content[adf_start_offset:].split(b"\00"))
     adf_items = list(map(lambda b: b.decode("cp932", errors="replace"), adf_items))
 
     adf_dict["AppName"] = adf_items[0]
@@ -57,6 +57,12 @@ def parse_props_00(adf_content, start_jam, verbose=False) -> dict:
                 adf_dict["AppIcon"] = adf_item
             else:
                 other_items.append(adf_item)
+            
+    # Read SP sizes    
+    sp_sizes = read_spsize_00(adf_content, sp_start_offset, verbose=verbose)
+    
+    # Format it into JAM string
+    adf_dict["SPSize"] = ", ".join(map(str, sp_sizes))
 
     if verbose:
         print("ADF contents found:")
@@ -77,19 +83,29 @@ def read_spsize_00(adf_content, start_offset, verbose=False) -> list:
     """
     integers = []
     offset = start_offset
-
-    while True:
-        integer = struct.unpack('<I', adf_content[offset:offset + 4])[0]
-
-        if integer == 0xFFFFFFFF:
-            break
-
-        integers.append(integer)
-        offset += 4
     
+    # Extract 64 bytes from the starting offset
+    extracted_bytes = adf_content[offset:offset + 64]
+    
+    # Iterate over the extracted bytes in chunks of 4 bytes
+    for i in range(0, len(extracted_bytes), 4):
+        integer = struct.unpack('<I', extracted_bytes[i:i + 4])[0]
+        if integer != 0xFFFFFFFF:
+            integers.append(integer)
+    
+    # Check if any SP size is 0
+    if 0 in integers:
+        if verbose:
+            raise ValueError(f"SP sizes are invalid: {integers}")
+    
+    # Check if any SP size is too large
+    if sum(integers) > 1024000:
+        if verbose:
+            raise ValueError(f"SP sizes are too large: {integers}")
+        
     if verbose:
         print(f"Scratchpad sizes found: {integers}\n")
-
+    
     return integers
 
 def parse_props_plaintext(adf_content, verbose=False) -> dict:
@@ -145,3 +161,16 @@ def parse_valid_name(package_url, verbose=False) -> str:
     if result == '':
         raise ValueError(f"No valid app name found in {package_url}")
     return os.path.splitext(result)[0]
+
+def fmt_plaintext_jam(adf_dict):
+    """
+    Format ADF dictionary into plaintext JAM format.
+    
+    :param adf_dict: ADF dictionary
+    
+    :return: Plaintext JAM format
+    """
+    jam = ""
+    for key, value in adf_dict.items():
+        jam += f"{key}={value}\n"
+    return jam

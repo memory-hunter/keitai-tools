@@ -2,10 +2,11 @@ from phonetypes.PhoneType import PhoneType
 import os
 import shutil
 from util.jam_utils import parse_props_plaintext, parse_valid_name
+from util.structure_utils import create_target_folder
 
 class DFType(PhoneType):
     """
-    A class to represent a D or an F phone with its extraction method.
+    A class to represent a D or an F phone type of structure with its extraction method.
     
     Description:
     - One top folder containing game folders numbered starting from 00.
@@ -22,7 +23,6 @@ class DFType(PhoneType):
         """
         
         def process_subdirectory(subfolder, target_directory):
-            
             if verbose:
                 print('-'*80)
             
@@ -121,10 +121,7 @@ class DFType(PhoneType):
             if verbose:
                 print(f"Processed: {subfolder} -> {app_name}\n")
         
-        # Create the target directory at the same level as the top folder directory
-        target_directory = os.path.join(os.path.dirname(top_folder_directory), 'output')
-        if not os.path.exists(target_directory):
-            os.makedirs(target_directory)
+        target_directory = create_target_folder(top_folder_directory)
         
         # List all folders in the top folder directory
         for folder in os.listdir(top_folder_directory):
