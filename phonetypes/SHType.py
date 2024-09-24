@@ -27,7 +27,7 @@ class SHType(PhoneType):
         
         :param top_folder_directory: Top folder directory to extract games from.
         """
-        
+        # Create the target directory at the same level as the top folder directory
         target_directory = create_target_folder(top_folder_directory)
         
         def process_file(apl_file_path):

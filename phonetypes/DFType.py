@@ -124,7 +124,8 @@ class DFType(PhoneType):
                 
             if verbose:
                 print(f"Processed: {subfolder} -> {app_name}\n")
-        
+                
+        # Create the target directory at the same level as the top folder directory
         target_directory = create_target_folder(top_folder_directory)
         
         # List all folders in the top folder directory

@@ -25,7 +25,7 @@ class Null3FolderType(PhoneType):
         # Process all ADF files, with corresponding JAR and SP files
         # Get the ADF file and its index
         for adf_file in os.listdir(os.path.join(top_folder_directory, "adf")):
-            if not adf_file.startswith("adf"):
+            if not adf_file.lower().startswith("adf"):
                 continue
             
             if verbose:
@@ -64,8 +64,13 @@ class Null3FolderType(PhoneType):
                         print(f"Warning: Not good with offset {offset}. Trying next offset.")
                     if offset == self.null_type_offsets[-1]:
                         if verbose:
-                            print(f"Warning: Could not read ADF file {adf_file}. Skipping.\n")
-                        return
+                            print(f"Warning: Could not read ADF file {adf_file}.")
+                        break
+            
+            if jam_props is None:
+                if verbose:
+                    print(f"Warning: Could not read ADF file {adf_file}'s props. Skipping.\n")
+                continue
             
             # Get JAR size in bytes into jam props
             jar_size = os.path.getsize(jar_file)
@@ -138,11 +143,10 @@ class Null3FolderType(PhoneType):
         required_folders = ["adf", "jar", "sp"]
         
         # Check if the top folder contains the required folders
-        for folder in required_folders:
-            folder_path = os.path.join(top_folder_directory, folder)
-            if not os.path.isdir(folder_path):
+        for folder in os.listdir(top_folder_directory):
+            if folder.lower() not in required_folders:
                 return None
-            
+            folder_path = os.path.join(top_folder_directory, folder)
             # Check for files with the pattern folderX where X is a number
             folder_files = os.listdir(folder_path)
 
