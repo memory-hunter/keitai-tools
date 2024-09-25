@@ -1,6 +1,5 @@
 from phonetypes.PhoneType import PhoneType
 import os
-import struct
 import shutil
 from util.jam_utils import parse_valid_name, parse_props_00, fmt_plaintext_jam, fmt_spsize_header
 from util.structure_utils import create_target_folder
@@ -56,8 +55,8 @@ class Null3FolderType(PhoneType):
                         except UnicodeDecodeError:
                             if verbose:
                                 print(f"Warning: UnicodeDecodeError with {encoding}. Trying next encoding.")
-                            if encoding == self.encodings[-1]:
-                                raise ValueError("Could not decode AppName.")
+                    else:
+                        raise ValueError("Could not decode AppName.")
                     break
                 except Exception:
                     if verbose:

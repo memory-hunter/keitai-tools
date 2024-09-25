@@ -21,7 +21,6 @@ class SHType(PhoneType):
     """
     
     def extract(self, top_folder_directory, verbose=False):
-        
         """
         Extract games from the top folder directory in a SH phone file structure.
         
@@ -89,10 +88,10 @@ class SHType(PhoneType):
                     except UnicodeDecodeError:
                         if verbose:
                             print(f"Warning: UnicodeDecodeError with {encoding}. Trying next encoding.")
-                        if encoding == self.encodings[-1]:
-                            if verbose:
-                                print(f"Warning: Could not read JAM file {apl_name}. Skipping.")
-                            return
+                else:
+                    if verbose:
+                        print(f"Warning: Could not read JAM file {apl_name}. Skipping.")
+                    return
                 
                 jam_props = parse_props_plaintext(jam_file, verbose=verbose)
                 

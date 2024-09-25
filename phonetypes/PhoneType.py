@@ -22,6 +22,7 @@ class PhoneType(ABC):
             0x9B4,
             0x990,
             0x9B8,
+            0x62C0,
         ]
 
     @abstractmethod

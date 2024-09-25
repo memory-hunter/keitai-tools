@@ -15,7 +15,6 @@ class DFType(PhoneType):
     """
     
     def extract(self, top_folder_directory, verbose=False):
-        
         """
         Extract games from the top folder directory in a D or F phone file structure.
         
@@ -46,8 +45,7 @@ class DFType(PhoneType):
                 except UnicodeDecodeError:
                     if verbose:
                         print(f"Warning: UnicodeDecodeError with {encoding}. Trying next encoding.")
-                        
-            if not jam_file:
+            else:
                 if verbose:
                     print(f"Warning: Could not read JAM file {jam_file_path}. Skipping.\n")
                 return

@@ -130,6 +130,8 @@ def parse_props_plaintext(adf_content, verbose=False) -> dict:
     for line in adf_content.splitlines():
         if '=' in line:
             name, value = line.split('=', 1)
+            if name.lower().find("spsize") != -1:
+                name = "SPsize"
             name = name.strip()
             if name.rfind("\x00") != -1:
                 name = name[name.rfind("\x00")+1:]
@@ -169,7 +171,8 @@ def parse_valid_name(package_url, verbose=False) -> str:
         print(f"Valid app name found: {result}\n")
     if result == '':
         raise ValueError(f"No valid app name found in {package_url}")
-    return os.path.splitext(result)[0]
+    # Return a sanitized version of the app name (it could be a URL, so take the last part of the path)
+    return os.path.basename(result).split('.')[0]
 
 def fmt_plaintext_jam(adf_dict) -> str:
     """
