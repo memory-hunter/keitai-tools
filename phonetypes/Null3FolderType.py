@@ -141,9 +141,15 @@ class Null3FolderType(PhoneType):
         # Expected folder names
         required_folders = ["adf", "jar", "sp"]
         
+        folders_list = os.listdir(top_folder_directory)
+        # Lower all folder names
+        folders_list = [folder.lower() for folder in folders_list]
+        
+        print(folders_list)
+        
         # Check if the top folder contains the required folders
-        for folder in os.listdir(top_folder_directory):
-            if folder.lower() not in required_folders:
+        for folder in required_folders:
+            if folder.lower() not in folders_list:
                 return None
             folder_path = os.path.join(top_folder_directory, folder)
             # Check for files with the pattern folderX where X is a number
@@ -152,7 +158,7 @@ class Null3FolderType(PhoneType):
             # In the adf folder, check for any file starting with 'adffile'
             if folder == "adf":
                 for file in folder_files:
-                    if file.startswith("adffile"):
+                    if file.lower().startswith("adffile"):
                         return None
                     # Check if a file contains at least one 00 byte
                     if open(os.path.join(folder_path, file), 'rb').read().count(b'\x00') == 0:
@@ -161,7 +167,7 @@ class Null3FolderType(PhoneType):
             # Ensure there is at least one valid 'folderX' file (e.g., adf1, jar2, sp3)
             valid_file_found = False
             for file in folder_files:
-                if file.startswith(folder):
+                if file.lower().startswith(folder):
                     suffix = file[len(folder):]
                     if suffix.isdigit():
                         valid_file_found = True

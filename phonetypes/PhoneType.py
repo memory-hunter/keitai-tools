@@ -17,6 +17,7 @@ class PhoneType(ABC):
             (0x94, 0xDC),
             (0xB8, 0x184),
             (0x94, 0x160),
+            (0x11C, 0x224),
         ]
         self.plaintext_cutoff_offsets = [
             0x9B4,
