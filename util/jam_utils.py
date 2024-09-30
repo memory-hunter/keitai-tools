@@ -67,6 +67,9 @@ def parse_props_00(adf_content, sp_start_offset, adf_start_offset, verbose=False
             else:
                 other_items.append(adf_item)
             
+    adf_dict["UseNetwork"] = 'http'
+    adf_dict["UseBrowser"] = 'launch'
+            
     # Read SP sizes    
     sp_sizes = read_spsize_00(adf_content, sp_start_offset, verbose=verbose)
     
