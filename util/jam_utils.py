@@ -70,6 +70,7 @@ def parse_props_00(adf_content, sp_start_offset, adf_start_offset, verbose=False
     adf_dict["UseNetwork"] = 'http'
     adf_dict["UseBrowser"] = 'launch'
     adf_dict["LaunchApp"] = 'yes'
+    adf_dict["GetUtn"] = 'terminalid,userid'
             
     # Read SP sizes    
     sp_sizes = read_spsize_00(adf_content, sp_start_offset, verbose=verbose)
