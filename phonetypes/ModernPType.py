@@ -4,41 +4,41 @@ import shutil
 from util.jam_utils import parse_valid_name, fmt_spsize_header, parse_props_plaintext
 from util.structure_utils import create_target_folder
 
-class ModernNType(PhoneType):
+class ModernPType(PhoneType):
     """
-    A class to represent a Modern NEC file structure type, and its extraction method.
+    A class to represent a Modern Panasonic file structure type, and its extraction method.
     
     Description:
-    - Top folder contains numbered folders starting from 0.
-    - Each numbered folder contains a adf, jar, sp file, and possibly a mini file.
+    - Top folder contains 3 folders: adf, jar, sp
+    - in adf, jar and sp folders, there are numbered files and each are associated with each other across folders
     """
     
     def extract(self, top_folder_directory, verbose=False):
         """
-        Extract games from the top folder directory in a Modern NEC phone file structure.
+        Extract games from the top folder directory in a Modern Panasonic phone file structure.
         
         :param top_folder_directory: Top folder directory to extract games from.
         """
+        # Create the target directory at the same level as the top folder directory
+        target_directory = create_target_folder(top_folder_directory)
         
-        def process_subdirectory(subfolder, target_directory):
+        # List all files in the "ADF" folder in the top folder directory
+        adf_folder = os.path.join(top_folder_directory, "adf")
+        adf_files = os.listdir(adf_folder)
+        
+        # Go through all files in the "ADF" folder and process the same numbered files in the "JAR" and "SP" folders
+        for adf_file in adf_files:
             if verbose:
                 print('-'*80)
+                
+            # Get the file number from the adf file
+            adf_index = int(adf_file)
             
-            # List all files
-            files = os.listdir(subfolder)
+            # Get the corresponding jar and sp files
+            jar_file = os.path.join(top_folder_directory, "jar", str(adf_index))
+            sp_file = os.path.join(top_folder_directory, "sp", str(adf_index))
             
-            # Process ADF
-            adf_file_path = os.path.join(subfolder, next((f for f in files if f.lower().startswith('adf')), None))
-            
-            if not adf_file_path:
-                if verbose:
-                    print(f"No ADF file found in {subfolder}. Skipping.\n")
-                return
-            
-            # Get the corresponding JAR and SP files
-            adf_index = os.path.basename(subfolder)
-            
-            adf_file = open(os.path.join(subfolder, adf_file_path), 'rb').read()
+            adf_file = open(os.path.join(adf_folder, adf_file), 'rb').read()
             
             # Find the offset for plaintext cutoff
             for offset in self.plaintext_cutoff_offsets:
@@ -99,8 +99,8 @@ class ModernNType(PhoneType):
                             print(f"Warning: {e.args[0]}")
                 if app_name is None:
                     if verbose:
-                        print(f"Warning: No valid app name found in {adf_file_path}. Using base folder name.")
-                        app_name = 'adf' + adf_index
+                        print(f"Warning: No valid app name found in {adf_index}. Using base folder name.")
+                        app_name = 'adf' + str(adf_index)
             
             # Check there is no duplicate app name existing in the target directory
             if os.path.exists(os.path.join(target_directory, f"{app_name}.jam")):
@@ -108,61 +108,55 @@ class ModernNType(PhoneType):
                     print(f"Warning: {app_name}.jam already exists in {target_directory}.")
                 app_name = f"{app_name}_{self.duplicate_count+1}"
                 self.duplicate_count += 1
-                
-            # Get the corresponding files
-            jar_file_path = os.path.join(subfolder, f"jar")
-            sp_file_path = os.path.join(subfolder, f"sp")
-            mini_file_path = os.path.join(subfolder, f"mini")
             
-            # Copy over jar, sp and mini and write jam file
-            with open(os.path.join(target_directory, f"{app_name}.jam"), 'w', encoding=used_encoding) as f:
-                f.write(adf_file)
-            if os.path.exists(jar_file_path):
-                shutil.copy(jar_file_path, os.path.join(target_directory, f"{app_name}.jar"))
-            # Add a header to SP file
-            if os.path.exists(sp_file_path):
-                sp_size_list = jam_props['SPsize'].split(',')
-                sp_size_list = [int(sp_size) for sp_size in sp_size_list]
-                sp_header = fmt_spsize_header(sp_size_list)
-                with open(sp_file_path, 'rb') as sp:
+            # Write the JAM and JAR to the target directory, put header on the SP and write
+            with open(os.path.join(target_directory, f"{app_name}.jam"), 'w', encoding=used_encoding) as jam_file:
+                jam_file.write(adf_file)
+                
+            if os.path.exists(jar_file):
+                with open(jar_file, 'rb') as jar_file:
+                    with open(os.path.join(target_directory, f"{app_name}.jar"), 'wb') as target_jar_file:
+                        target_jar_file.write(jar_file.read())
+            
+            if os.path.exists(sp_file):
+                with open(sp_file, 'rb') as sp_file:
+                    sp_size_list = jam_props['SPsize'].split(',')
+                    sp_size_list = [int(sp_size) for sp_size in sp_size_list]
+                    sp_header = fmt_spsize_header(sp_size_list)
                     with open(os.path.join(target_directory, f"{app_name}.sp"), 'wb') as f:
                         f.write(sp_header)
-                        f.write(sp.read())
-            if os.path.exists(mini_file_path):
-                shutil.copy(mini_file_path, os.path.join(target_directory, f"{app_name}_mini.jar"))
-                
-            if verbose:
-                print(f"Processed: {subfolder} -> {app_name}\n")
-        
-        # Create the target directory at the same level as the top folder directory
-        target_directory = create_target_folder(top_folder_directory)
-        
-        # List all folders in the top folder directory
-        for folder in os.listdir(top_folder_directory):
-            folder_path = os.path.join(top_folder_directory, folder)
-            if os.path.isdir(folder_path):
-                # Process the subdirectory and output into folder "output" at the same level as top level directory
-                process_subdirectory(folder_path, target_directory)
+                        f.write(sp_file.read())
             
-    
+            if verbose:
+                print(f"Processed: {str(adf_index)} -> {app_name}\n")
+            
     def test_structure(self, top_folder_directory):
         """
-        Test the structure of the top folder directory to see if it is of Modern NEC file structure type.
+        Test the structure of the top folder directory to see if it is of Modern Panasonic file structure type.
         
         :param top_folder_directory: Top folder directory to test the structure of.
         """
-        # Check if the top folder directory contains numbered folders
-        for folder in os.listdir(top_folder_directory):
-            if not folder.isdigit():
-                return False
+        # Check if the top folder directory contains adf, jar and sp folders
+        # Check if there are at least numbered files in adf, jar and sp folders
+        # Expected folder names
+        required_folders = ["adf", "jar", "sp"]
         
-        # Check if each numbered folder contains an adf file if it has any number of files, skip if empty
-        for folder in os.listdir(top_folder_directory):
+        folders_list = os.listdir(top_folder_directory)
+        # Lower all folder names
+        folders_list = [folder.lower() for folder in folders_list]
+        
+        # Check if the top folder contains the required folders
+        for folder in required_folders:
+            if folder.lower() not in folders_list:
+                return None
+        
+        # Check if each required folder contains at least one numbered file
+        for folder in required_folders:
             folder_path = os.path.join(top_folder_directory, folder)
-            folder_files = os.listdir(folder_path)
-            if not folder_files:
-                continue
-            if not any(file.startswith("adf") for file in folder_files):
-                return False
+            folder_contents = os.listdir(folder_path)
+            
+            # Check if there is at least one file with a numeric name
+            if not any(item.isdigit() for item in folder_contents):
+                return None
         
-        return "ModernN"
+        return "ModernP"

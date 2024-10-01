@@ -145,8 +145,6 @@ class Null3FolderType(PhoneType):
         # Lower all folder names
         folders_list = [folder.lower() for folder in folders_list]
         
-        print(folders_list)
-        
         # Check if the top folder contains the required folders
         for folder in required_folders:
             if folder.lower() not in folders_list:
