@@ -1,13 +1,19 @@
-- reADFMulti.py - Converts P900i-esque _JAVA folder contents (ADF/JAR/SP) to .jam, .jar, .sp files
-- spfolder.py - Puts a header on every .sp file under a given directory
-- spheader.py - Puts a header on a single file
-- unpacker.py - For F and D phones, gets all the .jam/.jar/.sp files from a given directory and puts them together.
-- mexaedit.py - For softbank phone .jad files, changes the .jad file to be imported in the MEXA.
-- convertForEmulator_*.py - Convert the selected ADF/JAR/SP raw folder for the emulator.
-  - p900i: for p900i, p900iV, n900i, n900is.
-  - p901is: for p901is.
-  - n904i: for n904i.
-  - n700i: for n700i, n701i.
-- convertForSH.py - Convert the APL/SCP raw folder for the emulator.
-- carvecramfs.py - courtesy of @xyzz, carves cramfs images from a given file.
-- strip*.py - Strips * bytes from a given file from the top, used to make files from DFE folder readable.
+# keitai-tools
+
+A small set of scripts to help process raw Java game dump folders from Japanese feature phones (keitai).
+This is the script you use after dumping internal memory of a keitai to have games be formatted in a way that they can be played on a DoCoMo emulator (DoJa or Star).
+
+## Usage
+
+```
+usage: kttools.py [-h] [--verbose] top_folder_directory
+
+Process a directory containing a raw top level folder with keitai apps. Outputs files in emulator import ready format.
+
+positional arguments:
+  top_folder_directory  The top folder directory containing the keitai apps.
+
+options:
+  -h, --help            show this help message and exit
+  --verbose             Print more information about conversion process.
+```
