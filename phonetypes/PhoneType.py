@@ -1,3 +1,4 @@
+from util.constants import ENCODINGS, NULL_TYPE_OFFSETS, PLAINTEXT_CUTOFF_OFFSETS
 from abc import ABC, abstractmethod
 
 class PhoneType(ABC):
@@ -10,21 +11,9 @@ class PhoneType(ABC):
         Initialize the phone type.
         """
         self.duplicate_count = 0
-        self.encodings = ['cp932', 'utf-8']
-        self.null_type_offsets = [
-            (0x8C, 0xD4),
-            (0xD4, 0x1C0),
-            (0x94, 0xDC),
-            (0xB8, 0x184),
-            (0x94, 0x160),
-            (0x11C, 0x224),
-        ]
-        self.plaintext_cutoff_offsets = [
-            0x9B4,
-            0x990,
-            0x9B8,
-            0x62C0,
-        ]
+        self.encodings = ENCODINGS
+        self.null_type_offsets = NULL_TYPE_OFFSETS
+        self.plaintext_cutoff_offsets = PLAINTEXT_CUTOFF_OFFSETS
 
     @abstractmethod
     def extract(self, top_folder_directory, verbose=False):

@@ -4,6 +4,7 @@ from phonetypes.Null3FolderType import Null3FolderType
 from phonetypes.ModernNType import ModernNType
 from phonetypes.NullPlain3FolderType import NullPlain3FolderType
 from phonetypes.ModernPType import ModernPType
+from util.postprocess import *
 import os
 import argparse
 
@@ -49,5 +50,19 @@ def main():
         phone_type = ModernPType()
     phone_type.extract(os.path.abspath(args.top_folder_directory), verbose=args.verbose)
 
+    # Give options for postprocessing
+    print("""Postprocessing options:
+    1. Rename SIMPLE games (use if you see lots of 'dljar' containing files)
+""")
+    postprocess_choice = input("Enter the number of the postprocessing option you want to use or 'q' to quit: ")
+    if postprocess_choice == '1':
+        output_folder = os.path.abspath(os.path.join(args.top_folder_directory, os.pardir, 'output'))
+        post_process_SIMPLE_games(output_folder, verbose=args.verbose)
+    elif postprocess_choice == 'q':
+        print("Quitting.")
+        return
+    else:
+        print("Invalid choice. Quitting.")
+        return
 if __name__ == '__main__':
     main()
