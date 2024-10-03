@@ -54,9 +54,9 @@ def main():
     print("""Postprocessing options:
     1. Rename SIMPLE games (use if you see lots of 'dljar' containing files)
 """)
+    output_folder = os.path.abspath(os.path.join(args.top_folder_directory, os.pardir, 'output'))
     postprocess_choice = input("Enter the number of the postprocessing option you want to use or 'q' to quit: ")
     if postprocess_choice == '1':
-        output_folder = os.path.abspath(os.path.join(args.top_folder_directory, os.pardir, 'output'))
         post_process_SIMPLE_games(output_folder, verbose=args.verbose)
     elif postprocess_choice == 'q':
         print("Quitting.")

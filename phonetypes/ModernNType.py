@@ -28,12 +28,13 @@ class ModernNType(PhoneType):
             files = os.listdir(subfolder)
             
             # Process ADF
-            adf_file_path = os.path.join(subfolder, next((f for f in files if f.lower().startswith('adf')), None))
-            
-            if not adf_file_path:
+            next_adf = next((f for f in files if f.lower().startswith('adf')), None)
+            if not next_adf:
                 if verbose:
                     print(f"No ADF file found in {subfolder}. Skipping.\n")
                 return
+            
+            adf_file_path = os.path.join(subfolder, next_adf)
             
             # Get the corresponding JAR and SP files
             adf_index = os.path.basename(subfolder)
@@ -151,18 +152,19 @@ class ModernNType(PhoneType):
         
         :param top_folder_directory: Top folder directory to test the structure of.
         """
-        # Check if the top folder directory contains numbered folders
-        for folder in os.listdir(top_folder_directory):
-            if not folder.isdigit():
-                return False
-        
+        # Check if the top folder directory contains numbered folders use os.walk
+        if not(any(folder.isdigit() for folder in os.listdir(top_folder_directory))):
+            return None
+
         # Check if each numbered folder contains an adf file if it has any number of files, skip if empty
-        for folder in os.listdir(top_folder_directory):
-            folder_path = os.path.join(top_folder_directory, folder)
-            folder_files = os.listdir(folder_path)
-            if not folder_files:
-                continue
-            if not any(file.startswith("adf") for file in folder_files):
-                return False
-        
+        for _, folders, _ in os.walk(top_folder_directory):
+            folders = [folder for folder in folders if folder.isdigit()]
+            for folder in folders:
+                print(folder)
+                folder_path = os.path.join(top_folder_directory, folder)
+                if not os.listdir(folder_path):
+                    continue
+                if not any(f.lower().startswith('adf') for f in os.listdir(folder_path)):
+                    return None
+
         return "ModernN"
