@@ -122,7 +122,7 @@ class SHType(PhoneType):
                     if app_name is None:
                         if verbose:
                             print(f"Warning: No valid app name found in {apl_file_path}. Using base name.")
-                            app_name = f'{apl_name}'
+                        app_name = f'{apl_name}'
                 
                 # Check there is no duplicate app name existing in the target directory
                 if os.path.exists(os.path.join(target_directory, f"{app_name}.jam")):
