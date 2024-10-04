@@ -33,7 +33,7 @@ class SHType(PhoneType):
             if verbose:
                 print('-'*80)
             
-            apl_name = os.path.splitext(apl_file_path)[0]
+            apl_name = os.path.basename(apl_file_path).split('.')[0]
             
             with open(apl_file_path, 'rb') as apl_file:
                 # Get the header which contains sizes and determine offset
