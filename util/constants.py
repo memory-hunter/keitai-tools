@@ -1,4 +1,7 @@
 ENCODINGS = ['cp932', 'utf-8']
+EARLY_NULL_TYPE_OFFSETS = [
+    (0x5C, 0x6C),
+]
 NULL_TYPE_OFFSETS = [
     (0x8C, 0xD4),
     (0xD4, 0x1C0),
@@ -6,6 +9,7 @@ NULL_TYPE_OFFSETS = [
     (0xB8, 0x184),
     (0x94, 0x160),
     (0x11C, 0x224),
+    (0x5C, 0x6C),
 ]
 PLAINTEXT_CUTOFF_OFFSETS = [
     0x9B4,

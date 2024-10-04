@@ -6,6 +6,7 @@ import struct
 import os
 from datetime import datetime
 from urllib.parse import urlparse, parse_qs
+from util.constants import EARLY_NULL_TYPE_OFFSETS
 
 def parse_props_00(adf_content, sp_start_offset, adf_start_offset, verbose=False) -> dict:
     """
@@ -17,6 +18,8 @@ def parse_props_00(adf_content, sp_start_offset, adf_start_offset, verbose=False
     :return: A dictionary of ADF contents
     """
     adf_dict = {}
+    # Determine phone type by checking the offsets
+    is_early = (sp_start_offset, adf_start_offset) in EARLY_NULL_TYPE_OFFSETS
     
     adf_items = filter(None, adf_content[adf_start_offset:].split(b"\00"))
     adf_items = list(map(lambda b: b.decode("cp932", errors="replace"), adf_items))
@@ -73,7 +76,10 @@ def parse_props_00(adf_content, sp_start_offset, adf_start_offset, verbose=False
     adf_dict["GetUtn"] = 'terminalid,userid'
             
     # Read SP sizes    
-    sp_sizes = read_spsize_00(adf_content, sp_start_offset, verbose=verbose)
+    if is_early:
+        sp_sizes = read_spsize_00_early(adf_content, sp_start_offset, verbose)
+    else:
+        sp_sizes = read_spsize_00(adf_content, sp_start_offset, verbose=verbose)
     
     # Format it into JAM string
     adf_dict["SPsize"] = ",".join(map(str, sp_sizes))
@@ -117,6 +123,23 @@ def read_spsize_00(adf_content, start_offset, verbose=False) -> list:
         if verbose:
             raise ValueError(f"SP sizes are too large: {integers}")
         
+    if verbose:
+        print(f"Scratchpad sizes found: {integers}\n")
+    
+    return integers
+
+def read_spsize_00_early(adf_content, start_offset, verbose=False):
+    """
+    Read SP size from null delimited early FOMA phone ADF file. It only contains one SP size and can't be split.
+    
+    :param adf_content: Null delimited ADF file content
+    :param start_offset: Start offset of SP sizes
+    
+    :return: A list of SP size
+    """
+    integers = []
+    integers.append(struct.unpack('<I', adf_content[start_offset:start_offset + 4])[0])
+    
     if verbose:
         print(f"Scratchpad sizes found: {integers}\n")
     

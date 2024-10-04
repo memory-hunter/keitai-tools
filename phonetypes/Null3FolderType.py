@@ -61,10 +61,10 @@ class Null3FolderType(PhoneType):
                 except Exception:
                     if verbose:
                         print(f"Warning: Not good with offset {offset}. Trying next offset.")
-                    if offset == self.null_type_offsets[-1]:
-                        if verbose:
-                            print(f"Warning: Could not read ADF file {adf_file}.")
-                        break
+            else:
+                if verbose:
+                    print(f"Warning: Could not read ADF file {adf_file}. Skipping.\n")
+                continue
             
             if jam_props is None:
                 if verbose:
