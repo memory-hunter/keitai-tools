@@ -81,11 +81,6 @@ def parse_props_00(adf_content, sp_start_offset, adf_start_offset, verbose=False
     else:
         sp_sizes = read_spsize_00(adf_content, sp_start_offset, verbose=verbose)
     
-    # Write ProfileVer if not set for early phones
-    if is_early:
-        if "ProfileVer" not in adf_dict:
-            adf_dict["ProfileVer"] = "DoJa-2.0"
-    
     # Format it into JAM string
     adf_dict["SPsize"] = ",".join(map(str, sp_sizes))
 
