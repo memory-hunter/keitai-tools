@@ -58,10 +58,10 @@ def parse_props_00(adf_content, sp_start_offset, adf_start_offset, verbose=False
     other_items = []
     if len(adf_items) > 6:
         for adf_item in adf_items[7:]:
-            if adf_item.startswith(("P", "N", "D", "F", "SO", "SH", "V", "M", "L", "CA", "E")):
-                adf_dict["TargetDevice"] = adf_item
-            elif adf_item.startswith(("DoJa-", "Star-")):
+            if adf_item.startswith(("DoJa-", "Star-")):
                 adf_dict["ProfileVer"] = adf_item
+            elif adf_item.startswith(("P", "N", "D", "F", "SO", "SH", "V", "M", "L", "CA", "E")):
+                adf_dict["TargetDevice"] = adf_item
             elif adf_item.startswith("http"):
                 if adf_dict["PackageURL"] == None:
                     adf_dict["PackageURL"] = adf_item
