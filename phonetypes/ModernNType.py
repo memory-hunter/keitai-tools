@@ -98,6 +98,8 @@ class ModernNType(PhoneType):
                     except ValueError as e:
                         if verbose:
                             print(f"Warning: {e.args[0]}")
+                if not app_name:
+                    package_url_candidates = jam_props['']
                 if app_name is None:
                     if verbose:
                         print(f"Warning: No valid app name found in {adf_file_path}. Using base folder name.")

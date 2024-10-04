@@ -10,7 +10,6 @@ def post_process_SIMPLE_games(output_folder_path, verbose=False):
     the 'dljar.jar' to the real name.
     """
     for root, _, files in os.walk(output_folder_path):
-        print(files)
         for file in files:
             if 'dljar' in file and file.endswith('.jam'):
                 for encoding in ENCODINGS:
