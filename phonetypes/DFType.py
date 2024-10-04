@@ -117,7 +117,7 @@ class DFType(PhoneType):
                 sp_size_list = [int(sp_size) for sp_size in sp_size_list]
                 header = fmt_spsize_header(sp_size_list)
                 with open(os.path.join(target_directory, f"{app_name}.sp"), 'wb') as wf:
-                    wf.writable(header)
+                    wf.write(header)
                     wf.write(concatenated_content)
                 
             if verbose:
