@@ -4,15 +4,16 @@ import shutil
 from util.jam_utils import parse_valid_name, parse_props_00, parse_props_plaintext, fmt_plaintext_jam, fmt_spsize_header
 from util.structure_utils import create_target_folder
 
-class NullPlain3FolderType(PhoneType):
+class NullPlain3FolderCSPType(PhoneType):
     """
-    A class to represent a phone with null delimited adf OR plaintext adf, using 3 folder, and its extraction method.
+    A class to represent a phone with null delimited adf OR plaintext adf, using 3 folders
+    having folders inside sp folder numbered, and its extraction method.
     
     Description:
     - Top folder contains 3 folders: adf, jar, sp
     - in adf folder, there are adfX or adffileX files, where X is the index
     - in jar folder, there are jarX files, where X is the index
-    - in sp folder, there are spX files, where X is the index
+    - in sp folder, there are spX folders with files inside numbered from 0, which need to be concatenated
     """
     
     def extract(self, top_folder_directory, verbose=False):
@@ -45,7 +46,6 @@ class NullPlain3FolderType(PhoneType):
                 
             # Get the properties from the JAM file
             jam_props = None
-            used_encoding = None
             
             if using_adf:
                 # Get the properties from the JAM file
@@ -120,17 +120,19 @@ class NullPlain3FolderType(PhoneType):
                     sp_size_list = jam_props['SPsize'].split(',')
                     sp_size_list = [int(sp_size) for sp_size in sp_size_list]
                     sp_header = fmt_spsize_header(sp_size_list)
-                    with open(sp_file_path, 'rb') as sp:
-                        with open(os.path.join(target_directory, f"{app_name}.sp"), 'wb') as f:
-                            f.write(sp_header)
-                            f.write(sp.read())
+                    with open(os.path.join(target_directory, f"{app_name}.sp"), 'wb') as f:
+                        f.write(sp_header)
+                        # Concatenate all X files inside spX folder, open files numbered 0 to len(sp_size_list) and concatenate
+                        for i in range(len(sp_size_list)):
+                            sp_file = os.path.join(sp_file_path, f"{i}")
+                            with open(sp_file, 'rb') as sp:
+                                f.write(sp.read())
             else:
                 # Get the properties from the plaintext JAM file
                 for encoding in self.encodings:
                     try:
                         adf_content = open(adf_file_path, 'r', encoding=encoding).read()
                         jam_props = parse_props_plaintext(adf_content, verbose=verbose)
-                        used_encoding = encoding
                         break
                     except UnicodeDecodeError:
                         if verbose:
@@ -172,10 +174,13 @@ class NullPlain3FolderType(PhoneType):
                     sp_size_list = jam_props['SPsize'].split(',')
                     sp_size_list = [int(sp_size) for sp_size in sp_size_list]
                     sp_header = fmt_spsize_header(sp_size_list)
-                    with open(sp_file_path, 'rb') as sp:
-                        with open(os.path.join(target_directory, f"{app_name}.sp"), 'wb') as f:
-                            f.write(sp_header)
-                            f.write(sp.read())
+                    with open(os.path.join(target_directory, f"{app_name}.sp"), 'wb') as f:
+                        f.write(sp_header)
+                        # Concatenate all X files inside spX folder, open files numbered 0 to len(sp_size_list) and concatenate
+                        for i in range(len(sp_size_list)):
+                            sp_file = os.path.join(sp_file_path, f"{i}")
+                            with open(sp_file, 'rb') as sp:
+                                f.write(sp.read())
             
             if verbose:
                 print(f"Processed: {os.path.basename(adf_file_path)} -> {app_name}\n")
@@ -218,10 +223,5 @@ class NullPlain3FolderType(PhoneType):
             
             if not valid_file_found:
                 return None
-        
-        # Check if in the folder "sp" there aren't any FODLERS which are of name "spX"
-        for folder in folders_list:
-            if folder.startswith("sp") and os.path.isdir(os.path.join(top_folder_directory, folder)):
-                return None
 
-        return "NullPlain3Folder"
+        return "NullPlain3FolderCSP"
