@@ -34,12 +34,13 @@ class NullPlain3FolderCSPType(PhoneType):
             using_adf = False
             
             # Check if adf or adffile file exists and prioritize adffile file
-            if os.path.exists(adffile_file_path):
+            if os.path.exists(adf_file_path):
+                using_adf = True 
+            elif os.path.exists(adffile_file_path):
                 adf_file_path = adffile_file_path
-            elif not os.path.exists(adf_file_path):
-                continue
             else:
-                using_adf = True
+                if verbose:
+                    print(f"Warning: No ADF file found for {jar_file}. Skipping.\n")
             
             if verbose:
                 print('-'*80)
@@ -57,9 +58,10 @@ class NullPlain3FolderCSPType(PhoneType):
                         if not all(jam_props.values()):
                             raise ValueError("Empty value found in JAM properties.")
                         break
-                    except Exception:
+                    except Exception as e:
                         if verbose:
                             print(f"Warning: Not good with offset {offset}. Trying next offset.")
+                            print(f"    - {e.args[0]}")
                 else:
                     if verbose:
                         print(f"Warning: Could not read ADF file {os.path.basename(adf_file_path)}.")
@@ -97,8 +99,6 @@ class NullPlain3FolderCSPType(PhoneType):
                 new_jam_content = fmt_plaintext_jam(jam_props)
                 
                 # Write the new JAM file
-                # with open(os.path.join(target_directory, f"{app_name}.jam"), 'w', encoding=) as f:
-                #     f.write(new_jam_content)
                 for encoding in self.encodings:
                     try:
                         with open(os.path.join(target_directory, f"{app_name}.jam"), 'w', encoding=encoding) as f:
@@ -112,21 +112,6 @@ class NullPlain3FolderCSPType(PhoneType):
                         print(f"Warning: Could not write JAM file {os.path.join(target_directory, f'{app_name}.jam')}. Skipping.\n")
                     continue
                 
-                # Copy the JAR file
-                shutil.copyfile(os.path.join(top_folder_directory, "jar", jar_file), os.path.join(target_directory, f"{app_name}.jar"))
-                
-                # Write the SP file with header if it exists
-                if os.path.exists(sp_file_path):
-                    sp_size_list = jam_props['SPsize'].split(',')
-                    sp_size_list = [int(sp_size) for sp_size in sp_size_list]
-                    sp_header = fmt_spsize_header(sp_size_list)
-                    with open(os.path.join(target_directory, f"{app_name}.sp"), 'wb') as f:
-                        f.write(sp_header)
-                        # Concatenate all X files inside spX folder, open files numbered 0 to len(sp_size_list) and concatenate
-                        for i in range(len(sp_size_list)):
-                            sp_file = os.path.join(sp_file_path, f"{i}")
-                            with open(sp_file, 'rb') as sp:
-                                f.write(sp.read())
             else:
                 # Get the properties from the plaintext JAM file
                 for encoding in self.encodings:
@@ -169,18 +154,26 @@ class NullPlain3FolderCSPType(PhoneType):
                     
                 # Copy the ADF file, JAR file, and write SP header with size header
                 shutil.copyfile(adf_file_path, os.path.join(target_directory, f"{app_name}.jam"))
-                shutil.copyfile(os.path.join(top_folder_directory, "jar", jar_file), os.path.join(target_directory, f"{app_name}.jar"))
-                if os.path.exists(sp_file_path):
-                    sp_size_list = jam_props['SPsize'].split(',')
-                    sp_size_list = [int(sp_size) for sp_size in sp_size_list]
-                    sp_header = fmt_spsize_header(sp_size_list)
-                    with open(os.path.join(target_directory, f"{app_name}.sp"), 'wb') as f:
-                        f.write(sp_header)
-                        # Concatenate all X files inside spX folder, open files numbered 0 to len(sp_size_list) and concatenate
-                        for i in range(len(sp_size_list)):
-                            sp_file = os.path.join(sp_file_path, f"{i}")
+            
+            # Copy the JAR file
+            shutil.copyfile(os.path.join(top_folder_directory, "jar", jar_file), os.path.join(target_directory, f"{app_name}.jar"))
+            
+            # Concatenate and write SP files if they exist
+            if os.path.exists(sp_file_path):
+                sp_size_list = jam_props['SPsize'].split(',')
+                sp_size_list = [int(sp_size) for sp_size in sp_size_list]
+                sp_header = fmt_spsize_header(sp_size_list)
+                with open(os.path.join(target_directory, f"{app_name}.sp"), 'wb') as f:
+                    f.write(sp_header)
+                    # Concatenate all X files inside spX folder, open files numbered 0 to len(sp_size_list) and concatenate
+                    for i in range(len(sp_size_list)):
+                        sp_file = os.path.join(sp_file_path, f"{i}")
+                        try:
                             with open(sp_file, 'rb') as sp:
                                 f.write(sp.read())
+                        except FileNotFoundError:
+                            if verbose:
+                                print(f"Warning: SP Index {i} file not found. Skipping.")
             
             if verbose:
                 print(f"Processed: {os.path.basename(adf_file_path)} -> {app_name}\n")

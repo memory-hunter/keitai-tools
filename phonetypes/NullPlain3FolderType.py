@@ -45,7 +45,6 @@ class NullPlain3FolderType(PhoneType):
                 
             # Get the properties from the JAM file
             jam_props = None
-            used_encoding = None
             
             if using_adf:
                 # Get the properties from the JAM file
@@ -57,9 +56,10 @@ class NullPlain3FolderType(PhoneType):
                         if not all(jam_props.values()):
                             raise ValueError("Empty value found in JAM properties.")
                         break
-                    except Exception:
+                    except Exception as e:
                         if verbose:
                             print(f"Warning: Not good with offset {offset}. Trying next offset.")
+                            print(f"    - {e.args[0]}")
                 else:
                     if verbose:
                         print(f"Warning: Could not read ADF file {os.path.basename(adf_file_path)}.")
@@ -203,6 +203,15 @@ class NullPlain3FolderType(PhoneType):
         for folder in required_folders:
             if folder.lower() not in folders_list:
                 return None
+        
+        # Check if in the folder "sp" there aren't any FODLERS inside
+        sp_folder_path = os.path.join(top_folder_directory, "sp")
+        sp_folders = os.listdir(sp_folder_path)
+        for folder in sp_folders:
+            if os.path.isdir(os.path.join(sp_folder_path, folder)):
+                return None
+            
+        for folder in required_folders:
             folder_path = os.path.join(top_folder_directory, folder)
             # Check for files with the pattern folderX where X is a number
             folder_files = os.listdir(folder_path)
@@ -210,18 +219,13 @@ class NullPlain3FolderType(PhoneType):
             # Ensure there is at least one valid 'folderX' file (e.g., adf1, jar2, sp3)
             valid_file_found = False
             for file in folder_files:
-                if file.lower().startswith(folder):
+                if file.lower().startswith(folder) and os.path.isfile(os.path.join(folder_path, file)):
                     suffix = file[len(folder):]
                     if suffix.isdigit():
                         valid_file_found = True
                         break
             
             if not valid_file_found:
-                return None
-        
-        # Check if in the folder "sp" there aren't any FODLERS which are of name "spX"
-        for folder in folders_list:
-            if folder.startswith("sp") and os.path.isdir(os.path.join(top_folder_directory, folder)):
                 return None
 
         return "NullPlain3Folder"

@@ -117,11 +117,6 @@ def read_spsize_00(adf_content, start_offset, verbose=False) -> list:
     if 0 in integers:
         if verbose:
             raise ValueError(f"SP sizes are invalid: {integers}")
-    
-    # Check if any SP size is too large
-    if sum(integers) > 1024000:
-        if verbose:
-            raise ValueError(f"SP sizes are too large: {integers}")
         
     if verbose:
         print(f"Scratchpad sizes found: {integers}\n")
