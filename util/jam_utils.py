@@ -112,11 +112,6 @@ def read_spsize_00(adf_content, start_offset, verbose=False) -> list:
         integer = struct.unpack('<I', extracted_bytes[i:i + 4])[0]
         if integer != 0xFFFFFFFF:
             integers.append(integer)
-    
-    # Check if any SP size is 0
-    if 0 in integers:
-        if verbose:
-            raise ValueError(f"SP sizes are invalid: {integers}")
         
     if verbose:
         print(f"Scratchpad sizes found: {integers}\n")

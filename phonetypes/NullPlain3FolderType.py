@@ -53,8 +53,11 @@ class NullPlain3FolderType(PhoneType):
                         adf_content = open(adf_file_path, 'rb').read()
                         jam_props = parse_props_00(adf_content, offset[0], offset[1], verbose=verbose)
                         # Check if any dictionary entry is empty (meaning '' or None)
-                        if not all(jam_props.values()):
+                        # Check if any dictionary entry is of length 0
+                        if not all(jam_props.values()) or any(len(value) == 0 for value in jam_props.values()):
                             raise ValueError("Empty value found in JAM properties.")
+                        if " " in jam_props['PackageURL']:
+                            raise ValueError("Space found in PackageURL.")
                         break
                     except Exception as e:
                         if verbose:

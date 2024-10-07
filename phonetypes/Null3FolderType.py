@@ -45,22 +45,16 @@ class Null3FolderType(PhoneType):
                     adf_content = open(adf_file_path, 'rb').read()
                     jam_props = parse_props_00(adf_content, offset[0], offset[1], verbose=verbose)
                     # Check if any dictionary entry is empty (meaning '' or None)
-                    if not all(jam_props.values()):
+                    # Check if any dictionary entry is of length 0
+                    if not all(jam_props.values()) or any(len(value) == 0 for value in jam_props.values()):
                         raise ValueError("Empty value found in JAM properties.")
-                    # Check if the AppName is valid in encodings
-                    for encoding in self.encodings:
-                        try:
-                            jam_props['AppName'] = jam_props['AppName'].encode(encoding).decode('utf-8')
-                            break
-                        except UnicodeDecodeError:
-                            if verbose:
-                                print(f"Warning: UnicodeDecodeError with {encoding}. Trying next encoding.")
-                    else:
-                        raise ValueError("Could not decode AppName.")
+                    if " " in jam_props['PackageURL']:
+                        raise ValueError("Space found in PackageURL.")
                     break
-                except Exception:
+                except Exception as e:
                     if verbose:
                         print(f"Warning: Not good with offset {offset}. Trying next offset.")
+                        print(f"    - {e.args[0]}")
             else:
                 if verbose:
                     print(f"Warning: Could not read ADF file {adf_file}. Skipping.\n")
