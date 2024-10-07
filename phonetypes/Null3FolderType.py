@@ -149,6 +149,15 @@ class Null3FolderType(PhoneType):
         for folder in required_folders:
             if folder.lower() not in folders_list:
                 return None
+        
+        # Check if in the folder "sp" there aren't any FODLERS inside
+        sp_folder_path = os.path.join(top_folder_directory, "sp")
+        sp_folders = os.listdir(sp_folder_path)
+        for folder in sp_folders:
+            if os.path.isdir(os.path.join(sp_folder_path, folder)):
+                return None    
+
+        for folder in required_folders:
             folder_path = os.path.join(top_folder_directory, folder)
             # Check for files with the pattern folderX where X is a number
             folder_files = os.listdir(folder_path)
