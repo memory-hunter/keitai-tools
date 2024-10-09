@@ -32,7 +32,16 @@ class ModernPType(PhoneType):
                 print('-'*80)
                 
             # Get the file number from the adf file
-            adf_index = int(adf_file)
+            try:
+                adf_index = int(adf_file)
+            except ValueError:
+                if verbose:
+                    print(f"Warning: {adf_file} seems to be deleted. Taking the index as the closest non-duplicate number.")
+                adf_index = None
+                for i in range(1, 1000):
+                    if os.path.exists(os.path.join(adf_folder, str(i))):
+                        adf_index = i
+                        break
             
             # Get the corresponding jar and sp files
             jar_file = os.path.join(top_folder_directory, "jar", str(adf_index))
@@ -42,7 +51,7 @@ class ModernPType(PhoneType):
             
             # Find the offset for plaintext cutoff
             for offset in self.plaintext_cutoff_offsets:
-                if b'\x00' in adf_file[offset:]:
+                if b'\x00' in adf_file[offset:] or len(adf_file[offset:]) == 0:
                     if verbose:
                         print(f"Plaintext cutoff not good for offset {offset}. Trying next offset.")
                     continue

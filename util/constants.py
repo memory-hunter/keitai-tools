@@ -13,6 +13,7 @@ NULL_TYPE_OFFSETS = [
     (0x110, 0x218),
 ]
 PLAINTEXT_CUTOFF_OFFSETS = [
+    0x68C,
     0x9B4,
     0x990,
     0x9B8,
