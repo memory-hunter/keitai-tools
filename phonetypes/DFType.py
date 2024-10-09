@@ -145,9 +145,6 @@ class DFType(PhoneType):
         # Check if the subfolder names have at least 1 digit in them (0-9) or an underscore optionally
         # Check if the subfolders contain a JAM file
         # Check if the subfolders contain a JAR file of any kind
-        
-        if verbose:
-            print(f"Testing structure of {top_folder_directory} for D/F phone type.")
             
         subdirs = [f for f in os.listdir(top_folder_directory) if os.path.isdir(os.path.join(top_folder_directory, f))]
         if len(subdirs) == 0:

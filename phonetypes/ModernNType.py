@@ -99,11 +99,9 @@ class ModernNType(PhoneType):
                         if verbose:
                             print(f"Warning: {e.args[0]}")
                 if not app_name:
-                    package_url_candidates = jam_props['']
-                if app_name is None:
                     if verbose:
                         print(f"Warning: No valid app name found in {adf_file_path}. Using base folder name.")
-                        app_name = 'adf' + adf_index
+                    app_name = 'adf' + adf_index
             
             # Check there is no duplicate app name existing in the target directory
             if os.path.exists(os.path.join(target_directory, f"{app_name}.jam")):
@@ -162,7 +160,6 @@ class ModernNType(PhoneType):
         for _, folders, _ in os.walk(top_folder_directory):
             folders = [folder for folder in folders if folder.isdigit()]
             for folder in folders:
-                print(folder)
                 folder_path = os.path.join(top_folder_directory, folder)
                 if not os.listdir(folder_path):
                     continue
