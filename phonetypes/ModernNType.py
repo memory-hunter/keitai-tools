@@ -43,7 +43,7 @@ class ModernNType(PhoneType):
             
             # Find the offset for plaintext cutoff
             for offset in self.plaintext_cutoff_offsets:
-                if b'\x00' in adf_file[offset:]:
+                if b'\x00' in adf_file[offset:] or len(adf_file[offset:]) == 0:
                     if verbose:
                         print(f"Plaintext cutoff not good for offset {offset}. Trying next offset.")
                     continue
