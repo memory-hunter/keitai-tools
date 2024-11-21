@@ -19,4 +19,5 @@ PLAINTEXT_CUTOFF_OFFSETS = [
     0x9B8,
     0x5EBC,
     0x62C0,
+    0x76C0,
 ]
