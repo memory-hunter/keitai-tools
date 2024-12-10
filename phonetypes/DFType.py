@@ -1,7 +1,7 @@
 from phonetypes.PhoneType import PhoneType
 import os
 import shutil
-from util.jam_utils import parse_props_plaintext, parse_valid_name, fmt_spsize_header
+from util.jam_utils import parse_props_plaintext, parse_valid_name, fmt_spsize_header, find_plausible_keywords_for_validity
 from util.structure_utils import create_target_folder
 
 class DFType(PhoneType):
@@ -48,6 +48,11 @@ class DFType(PhoneType):
             else:
                 if verbose:
                     print(f"Warning: Could not read JAM file {jam_file_path}. Skipping.\n")
+                return
+            
+            if (not find_plausible_keywords_for_validity(jam_file)):
+                if verbose:
+                    print(f"Warning: {subfolder} does not contain all required keywords. Skipping.\n")
                 return
             
             # Get the properties from the JAM file

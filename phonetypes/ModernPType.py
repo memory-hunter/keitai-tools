@@ -1,7 +1,7 @@
 from phonetypes.PhoneType import PhoneType
 import os
 import shutil
-from util.jam_utils import parse_valid_name, fmt_spsize_header, parse_props_plaintext
+from util.jam_utils import parse_valid_name, fmt_spsize_header, parse_props_plaintext, find_plausible_keywords_for_validity
 from util.structure_utils import create_target_folder
 
 class ModernPType(PhoneType):
@@ -46,8 +46,14 @@ class ModernPType(PhoneType):
             # Get the corresponding jar and sp files
             jar_file = os.path.join(top_folder_directory, "jar", str(adf_index))
             sp_file = os.path.join(top_folder_directory, "sp", str(adf_index))
-            
+            old_name = adf_file
             adf_file = open(os.path.join(adf_folder, adf_file), 'rb').read()
+            
+            # Check if there are all minimally required keywords in the ADF file
+            if (not find_plausible_keywords_for_validity(adf_file)):
+                if verbose:
+                    print(f"Warning: {old_name} does not contain all required keywords. Skipping.\n")
+                continue
             
             # Find the offset for plaintext cutoff
             for offset in self.plaintext_cutoff_offsets:

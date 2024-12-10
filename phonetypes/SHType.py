@@ -2,7 +2,7 @@ from phonetypes.PhoneType import PhoneType
 import os
 import struct
 import shutil
-from util.jam_utils import parse_props_plaintext, parse_valid_name, fmt_spsize_header
+from util.jam_utils import parse_props_plaintext, parse_valid_name, fmt_spsize_header, find_plausible_keywords_for_validity
 from util.structure_utils import create_target_folder
 
 class SHType(PhoneType):
@@ -91,6 +91,11 @@ class SHType(PhoneType):
                 else:
                     if verbose:
                         print(f"Warning: Could not read JAM file {apl_name}. Skipping.")
+                    return
+                
+                if (not find_plausible_keywords_for_validity(adf_file)):
+                    if verbose:
+                        print(f"Warning: {apl_file_path} does not contain all required keywords. Skipping.\n")
                     return
                 
                 jam_props = parse_props_plaintext(jam_file, verbose=verbose)
