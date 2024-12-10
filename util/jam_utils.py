@@ -7,7 +7,7 @@ import os
 from datetime import datetime
 from urllib.parse import urlparse, parse_qs
 from util.constants import EARLY_NULL_TYPE_OFFSETS
-from constants import MINIMAL_VALID_KEYWORDS
+from util.constants import MINIMAL_VALID_KEYWORDS
 
 def parse_props_00(adf_content, sp_start_offset, adf_start_offset, verbose=False) -> dict:
     """
