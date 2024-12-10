@@ -233,4 +233,4 @@ def find_plausible_keywords_for_validity(adf_file) -> bool:
     
     :return: True if the ADF file has some keywords which may make it valid, False otherwise
     """
-    return all(keyword in adf_file for keyword in MINIMAL_VALID_KEYWORDS)
+    return all(keyword in str(adf_file) for keyword in MINIMAL_VALID_KEYWORDS)
