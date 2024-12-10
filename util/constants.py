@@ -21,3 +21,9 @@ PLAINTEXT_CUTOFF_OFFSETS = [
     0x62C0,
     0x76C0,
 ]
+MINIMAL_VALID_KEYWORDS = [
+    'AppName',
+    'PackageURL',
+    'AppClass',
+    'LastModified',
+]

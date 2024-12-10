@@ -7,6 +7,7 @@ import os
 from datetime import datetime
 from urllib.parse import urlparse, parse_qs
 from util.constants import EARLY_NULL_TYPE_OFFSETS
+from constants import MINIMAL_VALID_KEYWORDS
 
 def parse_props_00(adf_content, sp_start_offset, adf_start_offset, verbose=False) -> dict:
     """
@@ -225,3 +226,11 @@ def fmt_spsize_header(sp_size_list) -> bytes:
     while len(sp_size_header) < 64:
         sp_size_header += b"\xFF\xFF\xFF\xFF"
     return sp_size_header
+
+def find_plausible_keywords_for_validity(adf_file) -> bool:
+    """
+    Find plausible keywords for validity of the ADF file.
+    
+    :return: True if the ADF file has some keywords which may make it valid, False otherwise
+    """
+    return all(keyword in adf_file for keyword in MINIMAL_VALID_KEYWORDS)
