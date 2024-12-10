@@ -1,7 +1,6 @@
 from phonetypes.PhoneType import PhoneType
 import os
 import struct
-import shutil
 from util.jam_utils import parse_props_plaintext, parse_valid_name, fmt_spsize_header, find_plausible_keywords_for_validity
 from util.structure_utils import create_target_folder
 
