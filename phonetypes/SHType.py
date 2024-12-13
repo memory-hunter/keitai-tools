@@ -92,7 +92,7 @@ class SHType(PhoneType):
                         print(f"Warning: Could not read JAM file {apl_name}. Skipping.")
                     return
                 
-                if (not find_plausible_keywords_for_validity(adf_file)):
+                if (not find_plausible_keywords_for_validity(jam_file)):
                     if verbose:
                         print(f"Warning: {apl_file_path} does not contain all required keywords. Skipping.\n")
                     return
