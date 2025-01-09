@@ -1,71 +1,55 @@
-from phonetypes.DFType import DFType
-from phonetypes.SHType import SHType
-from phonetypes.Null3FolderType import Null3FolderType
-from phonetypes.ModernNType import ModernNType
-from phonetypes.NullPlain3FolderType import NullPlain3FolderType
-from phonetypes.NullPlain3FolderCSPType import NullPlain3FolderCSPType
-from phonetypes.ModernPType import ModernPType
-from util.postprocess import *
 import os
 import argparse
+from util.postprocess import post_process_SIMPLE_games
+from phonetypes import DFType, SHType, Null3FolderType, ModernNType, NullPlain3FolderType, NullPlain3FolderCSPType, ModernPType
+
+PHONE_TYPES = {
+    "D/F": DFType.DFType,
+    "SH": SHType.SHType,
+    "Null3Folder": Null3FolderType.Null3FolderType,
+    "ModernN": ModernNType.ModernNType,
+    "NullPlain3Folder": NullPlain3FolderType.NullPlain3FolderType,
+    "NullPlain3FolderCSP": NullPlain3FolderCSPType.NullPlain3FolderCSPType,
+    "ModernP": ModernPType.ModernPType
+}
+
+POSTPROCESS_OPTIONS = {
+    '1': (post_process_SIMPLE_games, "Rename SIMPLE games (use if you see many 'dljar' files)"),
+}
+
+def get_phone_type(directory):
+    for name, cls in PHONE_TYPES.items():
+        if cls().test_structure(directory):
+            return name, cls()
+    return None, None
 
 def main():
-    # Parse command line arguments to get the top folder directory, verbose flag or help
-    parser = argparse.ArgumentParser(description='Process a directory containing a raw top level folder with keitai apps. Outputs files in emulator import ready format.')
-    parser.add_argument('top_folder_directory', help='The top folder directory containing the keitai apps.')
-    parser.add_argument('--verbose', action='store_true', help='Print more information.')
+    parser = argparse.ArgumentParser(description='Process a directory of keitai apps into emulator-ready format.')
+    parser.add_argument('top_folder_directory', help='Top folder directory containing keitai apps.')
+    parser.add_argument('--verbose', action='store_true', help='Enable verbose mode.')
     args = parser.parse_args()
-    
-    print(f"Verbose mode is {'on' if args.verbose else 'off'}")
-    
-    # Testing the structure of the top folder directory to see which phone type it is
-    phone_types = [DFType(), SHType(), Null3FolderType(), ModernNType(), NullPlain3FolderType(), NullPlain3FolderCSPType(), ModernPType()]
-    
-    test_result = False
-    
-    for phone_type in phone_types:
-        test_result = phone_type.test_structure(args.top_folder_directory)
-        if test_result:
-            print(f"Top folder directory {args.top_folder_directory} seems to be of {test_result} phone type.")
-            break
-        
-    if not test_result:
-        print(f"Top folder directory {args.top_folder_directory} does not seem to be of any type phone. Quitting.")
-        return
-    
-    print(f"Extracting from {args.top_folder_directory}\n")
-    
-    # Extract the games from the top folder directory
-    phone_type = None
-    if test_result == "D/F":
-        phone_type = DFType()
-    elif test_result == "SH":
-        phone_type = SHType()
-    elif test_result == "Null3Folder":
-        phone_type = Null3FolderType()
-    elif test_result == "ModernN":
-        phone_type = ModernNType()
-    elif test_result == "NullPlain3Folder":
-        phone_type = NullPlain3FolderType()
-    elif test_result == "NullPlain3FolderCSP":
-        phone_type = NullPlain3FolderCSPType()
-    elif test_result == "ModernP":
-        phone_type = ModernPType()
-    phone_type.extract(os.path.abspath(args.top_folder_directory), verbose=args.verbose)
 
-    # Give options for postprocessing
-    print("""Postprocessing options:
-    1. Rename SIMPLE games (use if you see lots of 'dljar' containing files)
-""")
+    print(f"Verbose mode is {'on' if args.verbose else 'off'}")
+
+    phone_type_name, phone_type_instance = get_phone_type(args.top_folder_directory)
+    if not phone_type_instance:
+        print(f"Directory {args.top_folder_directory} does not match any known phone type. Quitting")
+        return
+
+    print(f"Detected phone type: {phone_type_name}. Extracting...")
+    phone_type_instance.extract(os.path.abspath(args.top_folder_directory), verbose=args.verbose)
+
     output_folder = os.path.abspath(os.path.join(args.top_folder_directory, os.pardir, 'output'))
+    options_string = "\n".join([f"{key}. {desc}" for key, (_, desc) in POSTPROCESS_OPTIONS.items()])
+    print(f"""Postprocessing options:\n{options_string}\n""")
     postprocess_choice = input("Enter the number of the postprocessing option you want to use or 'q' to quit: ")
-    if postprocess_choice == '1':
-        post_process_SIMPLE_games(output_folder, verbose=args.verbose)
+    if postprocess_choice in POSTPROCESS_OPTIONS:
+        func, _ = POSTPROCESS_OPTIONS[postprocess_choice]
+        func(output_folder, verbose=args.verbose)
     elif postprocess_choice == 'q':
         print("Quitting.")
-        return
     else:
         print("Invalid choice. Quitting.")
-        return
+
 if __name__ == '__main__':
     main()
