@@ -27,3 +27,8 @@ MINIMAL_VALID_KEYWORDS = [
     'AppClass',
     'LastModified',
 ]
+SH_TYPE_OFFSETS = [
+    24,
+    32,
+    40,
+]

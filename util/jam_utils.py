@@ -234,3 +234,18 @@ def find_plausible_keywords_for_validity(adf_file) -> bool:
     :return: True if the ADF file has some keywords which may make it valid, False otherwise
     """
     return all(keyword in str(adf_file) for keyword in MINIMAL_VALID_KEYWORDS)
+
+def is_valid_sh_header(header, offset):
+    """
+    Check if the header at the given offset is valid for SH type JAMs.
+
+    :param header: The header bytes to validate.
+    :param offset: The offset to validate against.
+    :return: True if valid, False otherwise.
+    """
+    
+    # a terrible heuristic pls don't beat me i know i just can't think of anything else
+    if any(byte == 0 for byte in header[offset:offset + 32]): 
+        return False
+
+    return True
