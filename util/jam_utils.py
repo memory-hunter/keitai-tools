@@ -336,3 +336,15 @@ def parse_jam_objects(java_folder_path: str, verbose=False) -> list:
     if verbose:
         print("JAM reconstruction from database complete without errors.", end="\n\n")
         
+    return True
+
+def remove_garbage_so(content, interval, header, footer, oob):
+    content_ = content[header: len(content) - footer]
+    content_len = len(content_)
+
+    new_content = bytearray()
+    for i in range(0, content_len, interval + oob):
+        end = min(i + interval, content_len)
+        new_content += content_[i : end]
+
+    return new_content
