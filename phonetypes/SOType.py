@@ -54,27 +54,27 @@ class SOType(PhoneType):
                         print(f"Warning: {name} does not contain all required keywords. Skipping.\n")
                     return
             
+            ok = False
             for offset in self.so_type_offsets:
                 jam_size = 0
                 for _ in range(5):
                     indent = offset + jam_size
                     # "any" etc may occasionally be inserted, causing the indent to shift
                     # check if next 3 bytes are "any"
-                    print(dat_content[indent:indent + 3])
                     if dat_content[indent:indent + 3] == b"any":
                         indent += 3
                     indent += 2
-                    print(dat_content[indent - 2 : indent])
-                    print(int.from_bytes(dat_content[indent - 2 : indent], "little") - 0x4000)
                     jam_size = int.from_bytes(dat_content[indent - 2 : indent], "little") - 0x4000
-                    jam_content = dat_content[indent : indent + jam_size]
-                    print(jam_content[:30])
+                    jam_content = dat_content[indent : indent + jam_size] # plaintext
                     if jam_size > 0x30 and find_plausible_keywords_for_validity(jam_content):
+                        ok = True
                         break
                 else:
                     if verbose:
                         print(f"Warning: {name} does not contain a valid JAM file. Skipping.\n")
                     return
+                if ok:
+                    break
             
             raise Exception("Continue doing this")
             
