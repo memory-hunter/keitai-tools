@@ -1,7 +1,7 @@
 import os
 import argparse
 from util.postprocess import post_process_SIMPLE_games
-from phonetypes import DFType, SHType, Null3FolderType, ModernNType, NullPlain3FolderType, NullPlain3FolderCSPType, ModernPType
+from phonetypes import DFType, SHType, Null3FolderType, ModernNType, NullPlain3FolderType, NullPlain3FolderCSPType, ModernPType, SOType
 
 PHONE_TYPES = {
     "D/F": DFType.DFType,
@@ -10,7 +10,8 @@ PHONE_TYPES = {
     "ModernN": ModernNType.ModernNType,
     "NullPlain3Folder": NullPlain3FolderType.NullPlain3FolderType,
     "NullPlain3FolderCSP": NullPlain3FolderCSPType.NullPlain3FolderCSPType,
-    "ModernP": ModernPType.ModernPType
+    "ModernP": ModernPType.ModernPType,
+    "SO": SOType.SOType
 }
 
 POSTPROCESS_OPTIONS = {
