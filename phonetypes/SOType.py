@@ -50,33 +50,43 @@ class SOType(PhoneType):
                 
             # Verify if valid keywords are present
             if not find_plausible_keywords_for_validity(dat_content):
-                    if verbose:
-                        print(f"Warning: {name} does not contain all required keywords. Skipping.\n")
-                    return
+                if verbose:
+                    print(f"Warning: {name} does not contain all required keywords. Skipping.\n")
+                return
+            else:
+                if verbose:
+                    print(f"Warning: minimal keywords found in {name}. If it still fails to detect any JAM, please report to KeitaiWiki.\n")
             
             ok = False
             for offset in self.so_type_offsets:
                 jam_size = 0
                 for _ in range(5):
                     indent = offset + jam_size
+                    print(f"{jam_size:X}")
                     # "any" etc may occasionally be inserted, causing the indent to shift
                     # check if next 3 bytes are "any"
                     if dat_content[indent:indent + 3] == b"any":
                         indent += 3
                     indent += 2
+                    print(f"Trying offset 0x{indent:X}")
                     jam_size = int.from_bytes(dat_content[indent - 2 : indent], "little") - 0x4000
+                    print(f"{jam_size:X}")
                     jam_content = dat_content[indent : indent + jam_size] # plaintext
+                    print(jam_content[:30])
                     if jam_size > 0x30 and find_plausible_keywords_for_validity(jam_content):
                         ok = True
                         break
                 else:
                     if verbose:
-                        print(f"Warning: {name} does not contain a valid JAM file. Skipping.\n")
-                    return
+                        print(f"Warning: 0x{offset:X} is not a valid offset for {name}. Trying next offset.")
                 if ok:
                     break
-            
-            raise Exception("Continue doing this")
+            else:
+                if verbose:
+                    print(f"Warning: {name} does not contain a valid JAM file. Skipping.")
+                return
+            return
+            #raise Exception("Continue doing this")
             
         for file in os.listdir(top_folder_directory):
             if file.endswith('.dat'):
