@@ -338,7 +338,7 @@ def parse_jam_objects(java_folder_path: str, verbose=False) -> list:
         
     return True
 
-def remove_garbage_so(content, interval, header, footer, oob):
+def remove_garbage_so(content, interval=0x4000, header=0x20, footer=0x13, oob=0x2):
     content_ = content[header: len(content) - footer]
     content_len = len(content_)
 
