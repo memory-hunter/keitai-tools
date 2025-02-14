@@ -123,10 +123,10 @@ class SOType(PhoneType):
             
             # Extract JAR and SP and write files
             # Check there is no duplicate app name existing in the target directory
-            if os.path.exists(os.path.join(target_folder, app_name+".jam")):
+            if os.path.exists(os.path.join(target_directory, app_name+".jam")):
                 if verbose:
                     print(f"Warning: {app_name}.jam already exists in {target_directory}.")
-                app_name = f"{app_name}_{self.duplicate_count+1}"
+                app_name = f"{app_name}_({self.duplicate_count+1})"
                 self.duplicate_count += 1 
             new_jam_path = os.path.join(target_directory, app_name+".jam")
             with open(new_jam_path, 'w', encoding=used_encoding) as f:
