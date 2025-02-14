@@ -23,6 +23,7 @@ class SOType(PhoneType):
         def process_triplet(name, target_folder):
             if verbose:
                 print('-' * 80)
+                print(f"[{name}]")
             dat_path = os.path.join(target_folder, f"{name}.dat")
             jar_path = os.path.join(target_folder, f"{name}.jar")
             if not os.path.isfile(jar_path):
@@ -44,6 +45,7 @@ class SOType(PhoneType):
                     print(f"Warning: minimal keywords found in {name}. If it still fails to detect any JAM, please report to KeitaiWiki.\n")
             
             ok = False
+            is_so906i = False
             for offset in self.so_type_offsets:
                 if verbose:
                     print(f"Trying offset 0x{offset:X}")
@@ -62,6 +64,8 @@ class SOType(PhoneType):
                     jam_content = dat_content[indent : indent + jam_size] # plaintext
                     if jam_size > 0x30 and find_plausible_keywords_for_validity(jam_content):
                         ok = True
+                        if offset == 0xF84:
+                            is_so906i = True
                         break
                 else:
                     if verbose:
@@ -133,7 +137,11 @@ class SOType(PhoneType):
                 f.write(jam_file)
                 
             if os.path.exists(jar_path):
-                jar_data = remove_garbage_so(open(jar_path, 'rb').read())
+                if is_so906i:
+                    jar_data = open(jar_path, 'rb').read() 
+                else:
+                    jar_data = remove_garbage_so(open(jar_path, 'rb').read())
+                
                 new_jar_path = os.path.join(target_directory, app_name+".jar")
                 with open(new_jar_path, 'wb') as f:
                     f.write(jar_data)

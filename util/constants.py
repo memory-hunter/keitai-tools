@@ -36,4 +36,5 @@ SO_TYPE_OFFSETS = [
     0xD3C,
     0xD42,
     0xDF4,
+    0xF84,
 ]
