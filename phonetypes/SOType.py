@@ -46,28 +46,28 @@ class SOType(PhoneType):
             is_so906i = False
             for offset in self.so_type_offsets:
                 jam_size = 0
-                indent = offset + jam_size
-                for i in range(5):
-                    indent = indent + jam_size
-                    # "any" etc may occasionally be inserted, causing the indent to shift
-                    # check if next 3 bytes are "any"
-                    if dat_content[indent:indent + 3] == b"any":
-                        indent += 3
-                        i-=1
-                        continue
-                    indent += 2
+                indent = offset
+                
+                # Sometimes unrelated elements such as "any" are inserted, causing the starting position to shift.
+                for _ in range(5):
                     jam_size = int.from_bytes(dat_content[indent - 2 : indent], "little") - 0x4000
                     jam_content = dat_content[indent : indent + jam_size] # plaintext
                     
                     try:
                         jam_content.decode("cp932")
                     except:
+                        indent += jam_size + 2
                         continue
-                    if find_plausible_keywords_for_validity(jam_content):
-                        ok = True
-                        if offset == 0xF84:
-                            is_so906i = True
-                        break
+                    
+                    if not find_plausible_keywords_for_validity(jam_content):
+                        indent += jam_size + 2
+                        continue
+                    
+                    ok = True
+                    if offset == 0xF84:
+                        is_so906i = True
+                    break
+                
                 if ok:
                     if verbose:
                         print(f"The JAM offset is 0x{offset:X}")
@@ -76,7 +76,7 @@ class SOType(PhoneType):
                 if verbose:
                     print(f"Tried all of the following offsets without success: {[hex(off) for off in self.so_type_offsets]}")
                     if is_valid_jam:
-                        print(f'Warning: minimal JAM keywords found in {name}.dat. please report to KeitaiWiki.\n')
+                        print(f'!!! Warning: minimal JAM keywords found in {name}.dat. please report to KeitaiWiki. !!!\n')
                 return
             
             jam_file = None
@@ -136,21 +136,34 @@ class SOType(PhoneType):
                 
                 if not verify_jar(jar_data):
                     if verbose:
-                        print("Aborted: The JAR is corrupted.")
+                        print("!!! Aborted: The JAR is corrupted. !!!")
                     return
             
             sp_data = None
             if os.path.exists(scr_path):
-                sp_data = remove_garbage_so(open(scr_path, 'rb').read())
+                sp_size_list = jam_props['SPsize'].split(',')
+                sp_size_list = [int(sp_size) for sp_size in sp_size_list]
+                
+                with open(scr_path, "rb")as f:
+                    scr_data = f.read() 
+                
+                header_type = scr_data[0x1E]
+                if header_type in [0]:
+                    sp_data = remove_garbage_so(open(scr_path, 'rb').read())
+                elif header_type in [1, 2]:
+                    sp_data = remove_garbage_so(open(scr_path, 'rb').read(), header=0x20+0x16)
+                else:
+                    sp_data = remove_garbage_so(open(scr_path, 'rb').read())
+                
                 if not verify_sp(len(sp_data), jam_props['SPsize']):
                     if verbose:
-                        print("Warning: The size of the SP is different from the description in JAM.")
+                        print(f"!!! Warning: The size of the SP is different from the description in JAM. ({len(sp_data)} bytes, JAM={jam_props['SPsize']} bytes, {header_type=}) !!!\n")
             
             # Write files
             # Check there is no duplicate app name existing in the target directory
             if os.path.exists(os.path.join(target_directory, app_name+".jam")):
                 if verbose:
-                    print(f"Warning: {app_name}.jam already exists in {target_directory}.")
+                    print(f"INFO: {app_name}.jam already exists in {target_directory}.")
                 app_name = f"{app_name}_({self.duplicate_count+1})"
                 self.duplicate_count += 1 
             new_jam_path = os.path.join(target_directory, app_name+".jam")
@@ -169,8 +182,6 @@ class SOType(PhoneType):
             if sp_data:
                 sp_path = os.path.join(target_directory, app_name+".sp")
                 with open(sp_path, 'wb') as f:
-                    sp_size_list = jam_props['SPsize'].split(',')
-                    sp_size_list = [int(sp_size) for sp_size in sp_size_list]
                     sp_header = fmt_spsize_header(sp_size_list)
                     f.write(sp_header)
                     f.write(sp_data)

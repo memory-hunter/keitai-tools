@@ -34,7 +34,7 @@ SH_TYPE_OFFSETS = [
 ]
 SO_TYPE_OFFSETS = [
     0xD3C,
-    0xD42,
-    0xDF4,
+    0xD44,
+    0xDF6,
     0xF84,
 ]
