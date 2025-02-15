@@ -157,7 +157,7 @@ class SOType(PhoneType):
                 
                 if not verify_sp(len(sp_data), jam_props['SPsize']):
                     if verbose:
-                        print(f"!!! Warning: The size of the SP is different from the description in JAM. ({len(sp_data)} bytes, JAM={jam_props['SPsize']} bytes, {header_type=}) !!!\n")
+                        print(f"!!! Warning: The size of the SP is different from the description in JAM. ({len(sp_data)} bytes, JAM={sum(sp_size_list)} bytes, {header_type=}) !!!\n")
             
             # Write files
             # Check there is no duplicate app name existing in the target directory
