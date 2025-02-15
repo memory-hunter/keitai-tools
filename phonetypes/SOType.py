@@ -151,7 +151,7 @@ class SOType(PhoneType):
                 if header_type in [0]:
                     sp_data = remove_garbage_so(open(scr_path, 'rb').read())
                 elif header_type in [1, 2]:
-                    sp_data = remove_garbage_so(open(scr_path, 'rb').read(), header=0x20+0x17)
+                    sp_data = remove_garbage_so(open(scr_path, 'rb').read(), header=0x20+0x16)
                 else:
                     sp_data = remove_garbage_so(open(scr_path, 'rb').read())
                 
