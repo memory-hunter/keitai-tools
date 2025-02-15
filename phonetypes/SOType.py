@@ -151,7 +151,7 @@ class SOType(PhoneType):
                 if header_type in [0]:
                     sp_data = remove_garbage_so(open(scr_path, 'rb').read())
                 elif header_type in [1, 2]:
-                    sp_data = remove_garbage_so(open(scr_path, 'rb').read(), header=0x20+0x16)
+                    sp_data = remove_garbage_so(open(scr_path, 'rb').read(), header=0x20+0x17)
                 else:
                     sp_data = remove_garbage_so(open(scr_path, 'rb').read())
                 
@@ -161,11 +161,19 @@ class SOType(PhoneType):
             
             # Write files
             # Check there is no duplicate app name existing in the target directory
-            if os.path.exists(os.path.join(target_directory, app_name+".jam")):
-                if verbose:
-                    print(f"INFO: {app_name}.jam already exists in {target_directory}.")
-                app_name = f"{app_name}_({self.duplicate_count+1})"
-                self.duplicate_count += 1 
+            duplicate_count = 0
+            temp_app_name = app_name
+            while True:
+                if not os.path.exists(os.path.join(target_directory, f"{temp_app_name}.jam")):
+                    break
+                temp_app_name = f"{app_name}_({duplicate_count+1})"
+                duplicate_count += 1
+            
+            if duplicate_count > 0 and verbose:
+                print(f'INFO: The file name "{app_name}.jam" already exists in the output folder, so it will be changed.')
+            
+            app_name = temp_app_name
+            
             new_jam_path = os.path.join(target_directory, app_name+".jam")
             with open(new_jam_path, 'w', encoding=used_encoding) as f:
                 f.write(jam_file)
