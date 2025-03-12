@@ -256,6 +256,8 @@ def filter_sdf_fields(jam_props: map) -> map:
     :param jam_props: The JAM props map.
     :return: Modified JAM props with SDF props removed.
     """
+    # TODO: Also return SDF files as a separate map
+    
     for props in SDF_PROP_NAMES:
         if props in jam_props:
             jam_props.pop(props)
