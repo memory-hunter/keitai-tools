@@ -6,8 +6,7 @@ import struct
 import os
 from datetime import datetime
 from urllib.parse import urlparse, parse_qs
-from util.constants import EARLY_NULL_TYPE_OFFSETS
-from util.constants import MINIMAL_VALID_KEYWORDS
+from util.constants import EARLY_NULL_TYPE_OFFSETS, MINIMAL_VALID_KEYWORDS, SDF_PROP_NAMES
 
 def parse_props_00(adf_content, sp_start_offset, adf_start_offset, verbose=False) -> dict:
     """
@@ -249,3 +248,15 @@ def is_valid_sh_header(header, offset):
         return False
 
     return True
+
+def filter_sdf_fields(jam_props: map) -> map:
+    """
+    Removes all SDF fields from JAM props key value map.
+    
+    :param jam_props: The JAM props map.
+    :return: Modified JAM props with SDF props removed.
+    """
+    for props in SDF_PROP_NAMES:
+        if props in jam_props:
+            jam_props.pop(props)
+    return jam_props

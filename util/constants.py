@@ -28,7 +28,11 @@ MINIMAL_VALID_KEYWORDS = [
     'LastModified',
 ]
 SH_TYPE_OFFSETS = [
+    0,
     24,
     32,
     40,
+]
+SDF_PROP_NAMES = [
+    
 ]
