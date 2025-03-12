@@ -34,6 +34,13 @@ class SHType(PhoneType):
 
             apl_name = os.path.basename(apl_file_path).split('.')[0]
 
+            # Preliminary check for the file to have a valid JAM entry
+            apl_contents = open(apl_file_path, 'rb').read()
+            if not find_plausible_keywords_for_validity(apl_contents):
+                if verbose:
+                    print(f"WARNING: Skipping file {apl_name}: No minimal required keywords found for the .apl to have a valid JAM file")
+                return
+
             with open(apl_file_path, 'rb') as apl_file:
                 size_header = apl_file.read(max(self.sh_type_offsets))  # Read offset
                 for offset in self.sh_type_offsets:
