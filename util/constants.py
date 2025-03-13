@@ -34,7 +34,6 @@ SH_TYPE_OFFSETS = [
     40,
 ]
 SDF_PROP_NAMES = [
-    "PackageURL",
     "CheckCnt",
     "CheckInt",
     "SuspendedCnt",
