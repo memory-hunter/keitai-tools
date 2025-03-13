@@ -66,6 +66,7 @@ class SHType(PhoneType):
                     # If no valid offset is found
                     if verbose:
                         print(f"WARNING: Skipping file {apl_name}. It has no known offsets as a header for sizes.")
+                    return
                 
                 # Process the contents of the file using the unpacked sizes
                 # Reset the file pointer based on the offset

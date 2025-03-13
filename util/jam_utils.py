@@ -246,7 +246,8 @@ def is_valid_sh_header(header, offset):
     # a terrible heuristic pls don't beat me i know i just can't think of anything else
     if any(byte == 0 for byte in header[offset:offset + 32]): 
         return False
-
+    if header[offset:offset + 32] == b'':
+        return False
     return True
 
 def filter_sdf_fields(jam_props: map) -> map:
