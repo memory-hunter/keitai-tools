@@ -87,7 +87,7 @@ class SHType(PhoneType):
                         if verbose:
                             print(f"WARNING: Skipping file {apl_name}: Unknown format.")
                         return
-                    jam_file = whole_content[:jar_pos + 1 if gif_pos == -1 else gif_pos + 1]
+                    jam_file = whole_content[:jar_pos if gif_pos == -1 else gif_pos]
                     jar_file = whole_content[jar_pos:]
                     jam_size = len(jam_file)
                     jar_size = len(jar_file)
@@ -123,9 +123,10 @@ class SHType(PhoneType):
                 if valid_offset == 0:
                     # Filter out SDF fields
                     jam_props, sdf_props = filter_sdf_fields(jam_props)
+                    jam_file = fmt_plaintext_jam(jam_props)
                     sdf_file = fmt_plaintext_jam(sdf_props).encode()
                     sdf_size = len(sdf_file)
-
+                
                 # Determine app name
                 package_url = jam_props.get('PackageURL')
                 app_name = None
