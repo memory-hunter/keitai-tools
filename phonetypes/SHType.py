@@ -1,7 +1,7 @@
 from phonetypes.PhoneType import PhoneType
 import os
 import struct
-from util.jam_utils import parse_props_plaintext, parse_valid_name, fmt_spsize_header, find_plausible_keywords_for_validity, is_valid_sh_header, filter_sdf_fields
+from util.jam_utils import parse_props_plaintext, parse_valid_name, fmt_spsize_header, find_plausible_keywords_for_validity, is_valid_sh_header, filter_sdf_fields, fmt_plaintext_jam
 from util.structure_utils import create_target_folder
 
 class SHType(PhoneType):
@@ -122,7 +122,9 @@ class SHType(PhoneType):
                 
                 if valid_offset == 0:
                     # Filter out SDF fields
-                    jam_props = filter_sdf_fields(jam_props)
+                    jam_props, sdf_props = filter_sdf_fields(jam_props)
+                    sdf_file = fmt_plaintext_jam(sdf_props).encode()
+                    sdf_size = len(sdf_file)
 
                 # Determine app name
                 package_url = jam_props.get('PackageURL')

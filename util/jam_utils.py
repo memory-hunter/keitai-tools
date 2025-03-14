@@ -250,16 +250,21 @@ def is_valid_sh_header(header, offset):
         return False
     return True
 
-def filter_sdf_fields(jam_props: map) -> map:
+def filter_sdf_fields(jam_props: dict) -> tuple[dict, dict]:
     """
     Removes all SDF fields from JAM props key value map.
     
     :param jam_props: The JAM props map.
-    :return: Modified JAM props with SDF props removed.
+    :return jam_props: Modified JAM props with SDF props removed.
+    :return sdf_props: SDF key value map.
     """
-    # TODO: Also return SDF files as a separate map
     
+    sdf_props = dict()
+    
+    sdf_props['PackageURL'] = jam_props['PackageURL']
     for props in SDF_PROP_NAMES:
         if props in jam_props:
+            sdf_props[props] = jam_props[props]
             jam_props.pop(props)
-    return jam_props
+    
+    return jam_props, sdf_props
