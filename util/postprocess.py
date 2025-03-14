@@ -25,7 +25,7 @@ def post_process_SIMPLE_games(output_folder_path, verbose=False):
                                 os.rename(os.path.join(root, file), os.path.join(root, real_name + '.jam'))
                                 # Find the corresponding .jar and .sp files with the same name as the current .jam
                                 # Rename them to the real name and append the extension
-                                for ext in ['.jar', '.sp']:
+                                for ext in ['.jar', '.sp', '.sdf']:
                                     os.rename(os.path.join(root, file.replace('.jam', ext)), os.path.join(root, real_name + ext))
                             if verbose:
                                 print(f"Renamed: {file} -> {real_name}")
