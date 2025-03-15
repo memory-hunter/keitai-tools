@@ -1,6 +1,6 @@
 import os
 import argparse
-from util.postprocess import post_process_SIMPLE_games
+from util.postprocess import post_process_SIMPLE_games, post_process_konami_name_in_qs
 from phonetypes import DFType, SHType, Null3FolderType, ModernNType, NullPlain3FolderType, NullPlain3FolderCSPType, ModernPType, SOType
 
 PHONE_TYPES = {
@@ -15,7 +15,8 @@ PHONE_TYPES = {
 }
 
 POSTPROCESS_OPTIONS = {
-    '1': (post_process_SIMPLE_games, "Rename SIMPLE games (use if you see many 'dljar' files)"),
+    (post_process_SIMPLE_games, "Rename SIMPLE games (use if you see many 'dljar' files)"),
+    (post_process_konami_name_in_qs, "Rename Konami games by using the 'appliname' field in the link"),
 }
 
 def get_phone_type(directory):
