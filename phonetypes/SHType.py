@@ -1,7 +1,7 @@
 from phonetypes.PhoneType import PhoneType
 import os
 import struct
-from util.jam_utils import parse_props_plaintext, parse_valid_name, fmt_spsize_header, find_plausible_keywords_for_validity, is_valid_sh_header
+from util.jam_utils import parse_props_plaintext, parse_valid_name, fmt_spsize_header, find_plausible_keywords_for_validity, is_valid_sh_header, filter_sdf_fields, fmt_plaintext_jam
 from util.structure_utils import create_target_folder
 
 class SHType(PhoneType):
@@ -34,19 +34,30 @@ class SHType(PhoneType):
 
             apl_name = os.path.basename(apl_file_path).split('.')[0]
 
+            # Preliminary check for the file to have a valid JAM entry
+            apl_contents = open(apl_file_path, 'rb').read()
+            if not find_plausible_keywords_for_validity(apl_contents):
+                if verbose:
+                    print(f"WARNING: Skipping file {apl_name}: No minimal required keywords found for the .apl to have a valid JAM file")
+                return
+            
+            valid_offset = -1
+            
             with open(apl_file_path, 'rb') as apl_file:
                 size_header = apl_file.read(max(self.sh_type_offsets))  # Read offset
                 for offset in self.sh_type_offsets:
                     # Check if header is valid
                     if is_valid_sh_header(size_header, offset):
-                        # Dynamically unpack header based on offset
-                        num_integers = offset // 4
-                        format_string = f'<{"I" * num_integers}'
-                        unpacked_values = struct.unpack(format_string, size_header[:offset])
+                        if offset != 0:
+                            # Dynamically unpack header based on offset
+                            num_integers = offset // 4
+                            format_string = f'<{"I" * num_integers}'
+                            unpacked_values = struct.unpack(format_string, size_header[:offset])
 
-                        # Assign values to variables
-                        jam_size, sdf_size, unknown_size1, icon160_size, icon48_size, *extra_sizes, jar_size = unpacked_values
+                            # Assign values to variables
+                            jam_size, sdf_size, unknown_size1, icon160_size, icon48_size, *extra_sizes, jar_size = unpacked_values
 
+                        valid_offset = offset
                         # If a valid offset is found, stop checking further offsets
                         if verbose:
                             print(f"Valid header found at offset {offset}")
@@ -54,23 +65,44 @@ class SHType(PhoneType):
                 else:
                     # If no valid offset is found
                     if verbose:
-                        print(f"WARNING: Skipping file {apl_name}: No valid offset found")
+                        print(f"WARNING: Skipping file {apl_name}. It has no known offsets as a header for sizes.")
                     return
-
+                
                 # Process the contents of the file using the unpacked sizes
                 # Reset the file pointer based on the offset
                 apl_file.seek(offset)
-
-                # Fetch data
-                jam_file = apl_file.read(jam_size)
-                sdf_file = apl_file.read(sdf_size)
-                unknown1_file = apl_file.read(unknown_size1)
-                for idx, extra_size in enumerate(extra_sizes):
-                    extra_file = apl_file.read(extra_size)
-                icon160_file = apl_file.read(icon160_size)
-                icon48_file = apl_file.read(icon48_size)
-                jar_file = apl_file.read(jar_size)
-
+                
+                if valid_offset == 0:
+                    if verbose:
+                        print(f"Assuming linear JAM + SDF + ICON + ... + JAR structure.")
+                    whole_content = apl_file.read()
+                    # Find if there is an icon between SDF and JAR by using GIF file magic header
+                    gif_pos = whole_content.find(b"GIF89a")
+                    # Find the first archive header
+                    jar_pos = whole_content.find(b"\x50\x4B\x03\04")
+                    # The GIF magic header found is not an icon if it is inside the archive
+                    if gif_pos > jar_pos:
+                        gif_pos = -1
+                    if jar_pos == -1:
+                        if verbose:
+                            print(f"WARNING: Skipping file {apl_name}: Unknown format.")
+                        return
+                    jam_file = whole_content[:jar_pos if gif_pos == -1 else gif_pos]
+                    jar_file = whole_content[jar_pos:]
+                    jam_size = len(jam_file)
+                    jar_size = len(jar_file)
+                    sdf_size = 0
+                elif valid_offset != 0:
+                    # Fetch data
+                    jam_file = apl_file.read(jam_size)
+                    sdf_file = apl_file.read(sdf_size)
+                    unknown1_file = apl_file.read(unknown_size1)
+                    for idx, extra_size in enumerate(extra_sizes):
+                        extra_file = apl_file.read(extra_size)
+                    icon160_file = apl_file.read(icon160_size)
+                    icon48_file = apl_file.read(icon48_size)
+                    jar_file = apl_file.read(jar_size)
+                
                 # Decode and validate JAM file
                 for encoding in self.encodings:
                     try:
@@ -84,14 +116,17 @@ class SHType(PhoneType):
                     if verbose:
                         print(f"Warning: Could not read JAM file {apl_name}. Skipping.")
                     return
-
-                if not find_plausible_keywords_for_validity(jam_file):
-                    if verbose:
-                        print(f"Warning: {apl_file_path} does not contain all required keywords. Skipping.\n")
-                    return
-
+                
+                # Get props as kv map
                 jam_props = parse_props_plaintext(jam_file, verbose=verbose)
-
+                
+                if valid_offset == 0:
+                    # Filter out SDF fields
+                    jam_props, sdf_props = filter_sdf_fields(jam_props)
+                    jam_file = fmt_plaintext_jam(jam_props)
+                    sdf_file = fmt_plaintext_jam(sdf_props).encode()
+                    sdf_size = len(sdf_file)
+                
                 # Determine app name
                 package_url = jam_props.get('PackageURL')
                 app_name = None

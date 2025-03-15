@@ -6,8 +6,7 @@ import struct
 import os
 from datetime import datetime
 from urllib.parse import urlparse, parse_qs
-from util.constants import EARLY_NULL_TYPE_OFFSETS
-from util.constants import MINIMAL_VALID_KEYWORDS
+from util.constants import EARLY_NULL_TYPE_OFFSETS, MINIMAL_VALID_KEYWORDS, SDF_PROP_NAMES
 
 def parse_props_00(adf_content, sp_start_offset, adf_start_offset, verbose=False) -> dict:
     """
@@ -247,5 +246,28 @@ def is_valid_sh_header(header, offset):
     # a terrible heuristic pls don't beat me i know i just can't think of anything else
     if any(byte == 0 for byte in header[offset:offset + 32]): 
         return False
-
+    if header[offset:offset + 32] == b'':
+        return False
     return True
+
+def filter_sdf_fields(jam_props: dict) -> tuple[dict, dict]:
+    """
+    Removes specific SDF fields from the jam_props dictionary and returns a tuple:
+    (modified jam_props, sdf_props containing the removed fields).
+
+    :param jam_props: The original dictionary containing various keys.
+    :return: A tuple containing the modified jam_props (with SDF fields removed)
+             and the sdf_props (which only has the removed fields).
+    """
+    sdf_props = {}
+    
+    # Safely remove 'PackageURL' if it exists.
+    if 'PackageURL' in jam_props:
+        sdf_props['PackageURL'] = jam_props['PackageURL']
+    
+    # Remove any additional SDF keys as defined in SDF_PROP_NAMES.
+    for key in SDF_PROP_NAMES:
+        if key in jam_props:
+            sdf_props[key] = jam_props.pop(key)
+    
+    return jam_props, sdf_props

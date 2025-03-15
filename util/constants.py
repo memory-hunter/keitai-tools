@@ -28,7 +28,37 @@ MINIMAL_VALID_KEYWORDS = [
     'LastModified',
 ]
 SH_TYPE_OFFSETS = [
+    0,
     24,
     32,
     40,
+]
+SDF_PROP_NAMES = [
+    "CheckCnt",
+    "CheckInt",
+    "SuspendedCnt",
+    "Lmd",
+    "SkipConfirm",
+    "GetLocationInfo",
+    "AllowedHost",
+    "UseOpenGL",
+    "UseBluetooth",
+    "UseMailer",
+    "GetPrivateInfo",
+    "UseTcpPeerConnection",
+    "UseUdpPeerConnection ",
+    "UseATF",
+    "UseVoiceInput",
+    "UseDynamicClassLoader",
+    "SetPhoneTheme",
+    "SetLaunchTime",
+    "RequestMyMenu",
+    "RequestPayPerView",
+    "AllowedLauncherApp",
+    "AllowedTcpHost",
+    "AllowedUdpHost",
+    "LaunchBySMS",
+    "LaunchByDTV",
+    "AppID",
+    "Sts"
 ]
