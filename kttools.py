@@ -42,16 +42,10 @@ def main():
     phone_type_instance.extract(os.path.abspath(args.top_folder_directory), verbose=args.verbose)
 
     output_folder = os.path.abspath(os.path.join(args.top_folder_directory, os.pardir, 'output'))
-    options_string = "\n".join([f"{key}. {desc}" for key, (_, desc) in POSTPROCESS_OPTIONS.items()])
-    print(f"""Postprocessing options:\n{options_string}\n""")
-    postprocess_choice = input("Enter the number of the postprocessing option you want to use or 'q' to quit: ")
-    if postprocess_choice in POSTPROCESS_OPTIONS:
-        func, _ = POSTPROCESS_OPTIONS[postprocess_choice]
+    for func, _ in POSTPROCESS_OPTIONS:
         func(output_folder, verbose=args.verbose)
-    elif postprocess_choice == 'q':
-        print("Quitting.")
-    else:
-        print("Invalid choice. Quitting.")
+        
+    print("Processing finished without errors.")
 
 if __name__ == '__main__':
     main()
