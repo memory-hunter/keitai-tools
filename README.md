@@ -1,6 +1,6 @@
 # keitai-tools
 
-Utiliy to help process raw Java game dump folders from Japanese feature phones (keitai).
+Utility to help process raw Java game dump folders from Japanese feature phones (keitai).
 This is the script you use after dumping internal memory of a keitai to have games be formatted in a way that they can be played on a DoCoMo emulator (DoJa or Star).
 
 ## Usage
