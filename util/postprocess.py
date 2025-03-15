@@ -57,17 +57,19 @@ def post_process_konami_name_in_qs(output_folder_path, verbose=False):
                         if package_url:
                             url_parsed = parse_qs(urlparse(package_url).query)
                             # Get 'appliname' argument from the URL
-                            real_name = url_parsed.get('appliname', None)[0] if url_parsed else None
-                            if real_name:
-                                real_name = real_name.split('.')[0]
-                                os.rename(os.path.join(root, file), os.path.join(root, real_name + '.jam'))
-                                # Find the corresponding .jar and .sp files with the same name as the current .jam
-                                # Rename them to the real name and append the extension
-                                for ext in ['.jar', '.sp', '.sdf']:
-                                    os.rename(os.path.join(root, file.replace('.jam', ext)), os.path.join(root, real_name + ext))
-                                if verbose:
-                                    print(f"Renamed: {file} -> {real_name}")
-                                break
+                            mid = url_parsed.get('appliname', None)
+                            if mid is not None:    
+                                real_name = url_parsed.get('appliname', None)[0] if url_parsed else None
+                                if real_name:
+                                    real_name = real_name.split('.')[0]
+                                    os.rename(os.path.join(root, file), os.path.join(root, real_name + '.jam'))
+                                    # Find the corresponding .jar and .sp files with the same name as the current .jam
+                                    # Rename them to the real name and append the extension
+                                    for ext in ['.jar', '.sp', '.sdf']:
+                                        os.rename(os.path.join(root, file.replace('.jam', ext)), os.path.join(root, real_name + ext))
+                                    if verbose:
+                                        print(f"Renamed: {file} -> {real_name}")
+                                    break
                         break
                     except UnicodeDecodeError:
                         if verbose:
