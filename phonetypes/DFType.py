@@ -143,31 +143,37 @@ class DFType(PhoneType):
         Test the structure of the top folder directory to see if it is a D/F type.
         
         :param top_folder_directory: Top folder directory to test the structure of.
+        :param verbose: If True, prints debug information.
         
-        :return: True if the structure is of D/F type, False otherwise.
+        :return: True if at least one subfolder satisfies the D/F type structure, False otherwise.
         """
-        
-        # Check if the subfolder names have at least 1 digit in them (0-9) or an underscore optionally
-        # Check if the subfolders contain a JAM file
-        # Check if the subfolders contain a JAR file of any kind
-            
-        subdirs = [f for f in os.listdir(top_folder_directory) if os.path.isdir(os.path.join(top_folder_directory, f))]
-        if len(subdirs) == 0:
+        if not os.path.isdir(top_folder_directory):
             return None
-        for folder in subdirs:
-            if not any(c.isdigit() or c == '_' for c in folder):
-                return None
-            folder_path = os.path.join(top_folder_directory, folder)
-            if not os.path.isdir(folder_path):
-                continue
-            files = os.listdir(folder_path)
-            if len(files) == 0:
-                continue
-            if not any(f.lower() == 'jam' for f in files):
-                return None
-            valid_jar_names = {'jar', 'fulljar', 'minijar'}
-            if not any(f.lower() in valid_jar_names or f.lower().endswith('.jar') for f in files):
-                return None
-        return "D/F"
-            
         
+        subdirs = [f for f in os.listdir(top_folder_directory) if os.path.isdir(os.path.join(top_folder_directory, f))]
+        if not subdirs:
+            return None
+        
+        valid_jar_names = {'jar', 'fulljar', 'minijar'}
+        found_valid_structure = False
+        
+        for folder in subdirs:
+            # Check if the folder name contains at least one digit or an underscore
+            if not any(c.isdigit() or c == '_' for c in folder):
+                continue
+            
+            folder_path = os.path.join(top_folder_directory, folder)
+            files = os.listdir(folder_path)
+            
+            # Check if the folder contains a JAM file
+            if not any('jam' in f.lower() for f in files):
+                continue
+            
+            # Check if the folder contains a JAR file of any type
+            if not any(name in f.lower() for f in files for name in valid_jar_names):
+                continue
+            
+            found_valid_structure = True
+            break  # No need to check further, we found a valid folder
+        
+        return "D/F" if found_valid_structure else None
