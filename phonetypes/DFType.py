@@ -85,7 +85,7 @@ class DFType(PhoneType):
                 if app_name is None:
                     if verbose:
                         print(f"Warning: No valid app name found in {jam_file_path}. Using base folder name.")
-                        app_name = f'{os.path.basename(subfolder)}'
+                    app_name = f'{os.path.basename(subfolder)}'
                 
             # Check there is no duplicate app name existing in the target directory
             if os.path.exists(os.path.join(target_directory, f"{app_name}.jam")):
