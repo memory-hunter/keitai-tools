@@ -1,7 +1,7 @@
 import os
 import argparse
 from util.postprocess import post_process_SIMPLE_games, post_process_konami_name_in_qs
-from phonetypes import DFType, SHType, Null3FolderType, ModernNType, NullPlain3FolderType, NullPlain3FolderCSPType, ModernPType, SOType
+from phonetypes import DFType, SHType, Null3FolderType, ModernNType, NullPlain3FolderType, NullPlain3FolderCSPType, ModernPType, SOType, SHOldType
 
 PHONE_TYPES = {
     "D/F": DFType.DFType,
@@ -11,7 +11,8 @@ PHONE_TYPES = {
     "NullPlain3Folder": NullPlain3FolderType.NullPlain3FolderType,
     "NullPlain3FolderCSP": NullPlain3FolderCSPType.NullPlain3FolderCSPType,
     "ModernP": ModernPType.ModernPType,
-    "SO": SOType.SOType
+    "SO": SOType.SOType,
+    "SHOld": SHOldType.SHOldType,
 }
 
 POSTPROCESS_OPTIONS = {

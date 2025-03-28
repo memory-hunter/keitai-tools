@@ -38,7 +38,7 @@ class SHType(PhoneType):
             apl_contents = open(apl_file_path, 'rb').read()
             if not find_plausible_keywords_for_validity(apl_contents):
                 if verbose:
-                    print(f"WARNING: Skipping file {apl_name}: No minimal required keywords found for the .apl to have a valid JAM file")
+                    print(f"Warning: Skipping file {apl_name}: No minimal required keywords found for the .apl to have a valid JAM file")
                 return
             
             valid_offset = -1
@@ -65,7 +65,7 @@ class SHType(PhoneType):
                 else:
                     # If no valid offset is found
                     if verbose:
-                        print(f"WARNING: Skipping file {apl_name}. It has no known offsets as a header for sizes.")
+                        print(f"Warning: Skipping file {apl_name}. It has no known offsets as a header for sizes.")
                     return
                 
                 # Process the contents of the file using the unpacked sizes
@@ -85,7 +85,7 @@ class SHType(PhoneType):
                         gif_pos = -1
                     if jar_pos == -1:
                         if verbose:
-                            print(f"WARNING: Skipping file {apl_name}: Unknown format.")
+                            print(f"Warning: Skipping file {apl_name}: Unknown format.")
                         return
                     jam_file = whole_content[:jar_pos if gif_pos == -1 else gif_pos]
                     jar_file = whole_content[jar_pos:]

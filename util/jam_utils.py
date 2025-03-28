@@ -13,6 +13,7 @@ def parse_props_00(adf_content, sp_start_offset, adf_start_offset, verbose=False
     Parse null delimited ADF file and return a dictionary of its contents.
     
     :param adf_content: Null delimited ADF file content
+    :param sp_start_offset: Start offset of SP sizes:
     :param adf_start_offset: Start offset of JAM section
     
     :return: A dictionary of ADF contents
