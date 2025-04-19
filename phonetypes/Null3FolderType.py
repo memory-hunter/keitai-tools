@@ -45,8 +45,8 @@ class Null3FolderType(PhoneType):
             adf_index = adf_file[3:]
 
             # Get the corresponding JAR and SP files
-            jar_file = os.path.join(folder_paths["jar"], f"{folder_paths["jar"][-3:]}{adf_index}")
-            sp_file = os.path.join(folder_paths["sp"], f"{folder_paths["sp"][-2:]}{adf_index}")
+            jar_file = os.path.join(folder_paths["jar"], f"{folder_paths['jar'][-3:]}{adf_index}")
+            sp_file = os.path.join(folder_paths["sp"], f"{folder_paths['sp'][-2:]}{adf_index}")
 
             # Get the properties from the JAM file
             jam_props = None
