@@ -58,8 +58,6 @@ class Null3FolderType(PhoneType):
                     jam_props = parse_props_00(adf_content, offset[0], offset[1], verbose=verbose)
 
                     # Ensure JAM properties are valid
-                    if not all(jam_props.values()) or any(len(value) == 0 for value in jam_props.values()):
-                        raise ValueError("Empty value found in JAM properties.")
                     if " " in jam_props['PackageURL']:
                         raise ValueError("Space found in PackageURL.")
 
