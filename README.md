@@ -5,6 +5,8 @@ This is the script you use after dumping internal memory of a keitai to have gam
 
 ## Usage
 
+Requires Python 3.9+. Haven't tested on any others.
+
 ```
 usage: kttools.py [-h] [--verbose] top_folder_directory
 
