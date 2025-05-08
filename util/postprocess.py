@@ -125,4 +125,4 @@ def post_process_sonic_cafe(output_folder_path, verbose=False):
                         print(f"Could not decode {file} with any encoding. Skipping.")
                     continue
     if verbose:
-        print("Postprocessing Konami games done.")
+        print("Postprocessing Sonic Cafe games done.")
