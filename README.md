@@ -9,7 +9,7 @@ Requires **Python 3.10+**
 
 This tool supports parsing `FJJAM.DB` files found on certain phone models. These files require reconstructing JAM files from the database.
 
-If you're working with a phone that was dumped using a `dump_java` command from [ktdumper](https://github.com/ktdumper/ktdumper) file, set up a virtual environment and install dependencies using `pip`.
+If you're working with a phone that was dumped using a `dump_java` command from [ktdumper](https://github.com/ktdumper/ktdumper), check if any of the folders contain a `jam` file. If not, set up a virtual environment and install dependencies using `pip`.
 
 ### Linux
 
