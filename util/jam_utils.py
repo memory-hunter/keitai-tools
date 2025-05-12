@@ -7,6 +7,8 @@ import os
 from datetime import datetime
 from urllib.parse import urlparse, parse_qs
 from util.constants import EARLY_NULL_TYPE_OFFSETS, MINIMAL_VALID_KEYWORDS, SDF_PROP_NAMES
+from db import extract_jam_objects, convert_db_datetime
+
 
 def parse_props_00(adf_content, sp_start_offset, adf_start_offset, verbose=False) -> dict:
     """
@@ -272,3 +274,42 @@ def filter_sdf_fields(jam_props: dict) -> tuple[dict, dict]:
             sdf_props[key] = jam_props.pop(key)
     
     return jam_props, sdf_props
+
+def assemble_jam(jam_obj) -> str:
+    jam_dict = dict()
+    jam_dict["AppName"] = jam_obj["appName"]
+    jam_dict["AppVer"] = jam_obj["appVersion"]
+    jam_dict["PackageURL"] = jam_obj["packageUrl"].data
+    jam_dict["AppSize"] = jam_obj["jar_Size"]
+    jam_dict["SPsize"] = []
+    for i in range(15):
+        if jam_dict[f"spSize{str(i)}"] != '-1':
+            jam_dict["SPsize"].append(jam_dict[f"spSize{str(i)}"])
+        else:
+            break
+    jam_dict["AppClass"] = jam_obj["appClass"].data
+    jam_dict["LastModified"] = jam_obj["lastModifiedTime"]
+    jam_dict["UseNetwork"] = 'http'
+    jam_dict["UseBrowser"] = 'launch'
+    jam_dict["LaunchApp"] = 'yes'
+    jam_dict["GetUtn"] = 'terminalid,userid'
+    jam_dict["AppParam"] = jam_obj["appParam"].data
+    jam_dict["LastModified"] = convert_db_datetime(jam_obj["lastModifiedTime"]).strftime("%a, %d %b %Y %H:%M:%S")
+    jam_dict["AccessUserInfo"] = 'yes'
+    jam_dict["GetSysInfo"] = 'yes'
+    jam_dict["ProfileVer"] = jam_obj["profileVersion"]
+    jam_dict["TrustedAPID"] = jam_obj["trustedApid"]
+    jam_dict["UseTelephone"] = 'call'
+    jam_dict["UseStorage"] = 'ext'
+    jam_dict["GetUtn"] = 'userid,terminalid'
+    jam_dict["LaunchApp"] = 'yes'
+    
+    jam_dict = {key: value for key, value in jam_dict.items() if value is not None}
+    
+    return fmt_plaintext_jam(jam_dict)
+    
+def parse_jam_objects(fjjam_path: str, verbose=False) -> list:
+    jam_objects = extract_jam_objects(fjjam_path, verbose)
+    jam_files = []
+    for obj in jam_objects:
+        jam_files.append(assemble_jam(obj))
