@@ -171,4 +171,8 @@ class ModernNType(PhoneType):
                 if not any(f.lower().startswith('adf') for f in os.listdir(folder_path)):
                     return None
 
+        # Check that there is no FJJAM.DB to not mistake with D/F
+        if os.path.exists(os.path.join(top_folder_directory, "FJJAM.DB")):
+            return None 
+        
         return "ModernN"
