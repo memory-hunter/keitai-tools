@@ -120,3 +120,4 @@ def post_process_sonic_cafe(output_folder_path, verbose=False):
                     if verbose:
                         print(f"Could not decode {file} with any encoding. Skipping.")
                     continue
+                    

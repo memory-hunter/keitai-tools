@@ -44,7 +44,7 @@ class SHType(PhoneType):
             valid_offset = -1
             
             with open(apl_file_path, 'rb') as apl_file:
-                size_header = apl_file.read(max(self.sh_type_offsets))  # Read offset
+                size_header = apl_file.read(max(self.sh_type_offsets) + 32)  # Read offset + 32
                 for offset in self.sh_type_offsets:
                     # Check if header is valid
                     if is_valid_sh_header(size_header, offset):
