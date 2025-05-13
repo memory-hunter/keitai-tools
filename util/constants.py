@@ -64,6 +64,7 @@ SDF_PROP_NAMES = [
     "Sts"
 ]
 FJJAM_WANTED_COLS = [
+    "app_No",
     "appName",
     "appVersion",
     "packageUrl",
@@ -108,8 +109,6 @@ FJJAM_WANTED_COLS = [
     "getUserId",
     "getUtnValid",
     "utnDownload",
-    "jamFileName",
-    "jarFileName",
     "iccid",
     "messageCode",
     "entryId",
