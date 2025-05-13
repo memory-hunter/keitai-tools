@@ -7,6 +7,8 @@ import os
 from datetime import datetime
 from urllib.parse import urlparse, parse_qs
 from util.constants import EARLY_NULL_TYPE_OFFSETS, MINIMAL_VALID_KEYWORDS, SDF_PROP_NAMES
+from util.db import extract_jam_objects, convert_db_datetime
+from util.structure_utils import inject_jam_into_folder
 
 def parse_props_00(adf_content, sp_start_offset, adf_start_offset, verbose=False) -> dict:
     """
@@ -191,10 +193,11 @@ def parse_valid_name(package_url, verbose=False) -> str:
                 break
         if not result:
             raise ValueError(f"No valid app name found in {package_url}")
+    # discriminate if it's just .{format}"
+    if (result[0] == '.' and len(result) == 4) or result == '':
+        raise ValueError(f"No valid app name found in {package_url}")
     if verbose:
         print(f"Valid app name found: {result}\n")
-    if result == '':
-        raise ValueError(f"No valid app name found in {package_url}")
     # Return a sanitized version of the app name (it could be a URL, so take the last part of the path)
     return os.path.basename(result).split('.')[0]
 
@@ -272,3 +275,45 @@ def filter_sdf_fields(jam_props: dict) -> tuple[dict, dict]:
             sdf_props[key] = jam_props.pop(key)
     
     return jam_props, sdf_props
+
+def assemble_jam(jam_obj) -> dict:
+    jam_dict = dict()
+    jam_dict["AppName"] = jam_obj["appName"]
+    jam_dict["AppVer"] = jam_obj["appVersion"]
+    jam_dict["PackageURL"] = jam_obj["packageUrl"].data if jam_obj["packageUrl"] != None else None
+    jam_dict["AppSize"] = jam_obj["jar_Size"]
+    jam_dict["SPsize"] = []
+    for i in range(15):
+        if jam_obj[f"spSize{str(i)}"] != -1:
+            jam_dict["SPsize"].append(jam_obj[f"spSize{str(i)}"])
+        else:
+            break
+    jam_dict["SPsize"] = str(jam_dict["SPsize"])[1:-1] # don't ask why
+    jam_dict["AppClass"] = jam_obj["appClass"].data if jam_obj["appClass"] != None else None
+    jam_dict["LastModified"] = jam_obj["lastModifiedTime"]
+    jam_dict["UseNetwork"] = 'http'
+    jam_dict["UseBrowser"] = 'launch'
+    jam_dict["LaunchApp"] = 'yes'
+    jam_dict["GetUtn"] = 'terminalid,userid'
+    jam_dict["AppParam"] = jam_obj["appParam"].data if jam_obj["appParam"] != None else None
+    jam_dict["LastModified"] = convert_db_datetime(jam_obj["lastModifiedTime"]).strftime("%a, %d %b %Y %H:%M:%S")
+    jam_dict["AccessUserInfo"] = 'yes'
+    jam_dict["GetSysInfo"] = 'yes'
+    jam_dict["ProfileVer"] = jam_obj["profileVersion"]
+    jam_dict["TrustedAPID"] = jam_obj["trustedApid"]
+    jam_dict["UseTelephone"] = 'call'
+    jam_dict["UseStorage"] = 'ext'
+    jam_dict["GetUtn"] = 'userid,terminalid'
+    jam_dict["LaunchApp"] = 'yes'
+    
+    jam_dict = {key: value for key, value in jam_dict.items() if value is not None}
+    
+    return jam_dict
+
+def parse_jam_objects(java_folder_path: str, verbose=False) -> list:
+    jam_objects = extract_jam_objects(os.path.join(java_folder_path, "FJJAM.DB"), verbose)
+    for obj in jam_objects:
+        jam_dict = assemble_jam(obj)
+        id = obj["app_No"]
+        inject_jam_into_folder(java_folder_path, id, fmt_plaintext_jam(jam_dict), verbose)
+        

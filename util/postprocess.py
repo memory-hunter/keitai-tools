@@ -42,8 +42,6 @@ def post_process_SIMPLE(output_folder_path, verbose=False):
                     if verbose:
                         print(f"Could not decode {file} with any encoding. Skipping.")
                     continue
-    if verbose:
-        print("Postprocessing SIMPLE games done.")
 
 def post_process_konami(output_folder_path, verbose=False):
     if verbose:
@@ -83,8 +81,6 @@ def post_process_konami(output_folder_path, verbose=False):
                     if verbose:
                         print(f"Could not decode {file} with any encoding. Skipping.")
                     continue
-    if verbose:
-        print("Postprocessing Konami games done.")
         
 def post_process_sonic_cafe(output_folder_path, verbose=False):
     if verbose:
@@ -124,5 +120,4 @@ def post_process_sonic_cafe(output_folder_path, verbose=False):
                     if verbose:
                         print(f"Could not decode {file} with any encoding. Skipping.")
                     continue
-    if verbose:
-        print("Postprocessing Sonic Cafe games done.")
+                    

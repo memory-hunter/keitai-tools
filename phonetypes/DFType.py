@@ -1,7 +1,7 @@
 from phonetypes.PhoneType import PhoneType
 import os
 import shutil
-from util.jam_utils import parse_props_plaintext, parse_valid_name, fmt_spsize_header, find_plausible_keywords_for_validity
+from util.jam_utils import parse_props_plaintext, parse_valid_name, fmt_spsize_header, find_plausible_keywords_for_validity, parse_jam_objects
 from util.structure_utils import create_target_folder
 
 class DFType(PhoneType):
@@ -10,9 +10,11 @@ class DFType(PhoneType):
     
     Description:
     - One top folder containing game folders numbered starting from 00.
-    - Each game folder contains a "jam", "[full/mini]jar" files.
+    - Each game folder contains a "jam", "[full/mini]jar" files. If jam doesn't exist, FJJAM.DB is used to reconstruct them.
     - "spX" files are indexed starting from 0, where X is the index.
     """
+    
+    needs_reconstruction = False
     
     def extract(self, top_folder_directory, verbose=False):
         """
@@ -100,7 +102,7 @@ class DFType(PhoneType):
             shutil.copy2(src, dst)
             
             # Find jar files, could be "jar" or ("fulljar" and/or "minijar")
-            jar_files = [f for f in files if f.lower() in ['jar', 'fulljar', 'minijar']]
+            jar_files = [f for f in files if any(substring in f.lower() for substring in ['jar', 'fulljar', 'minijar'])]
             
             # Copy over jar files, name jar and fulljar files with app name, for minijar, use app name + "_mini"
             for jar_file in jar_files:
@@ -130,6 +132,15 @@ class DFType(PhoneType):
                 
         # Create the target directory at the same level as the top folder directory
         target_directory = create_target_folder(top_folder_directory)
+        
+        # hack: run test structure again to get the reconstruction flag set if needed
+        self.test_structure(top_folder_directory)
+        
+        # Reconstruct JAMs if needed
+        if self.needs_reconstruction:
+            if verbose:
+                print("No JAM files detected in the game folders. Reconstructing from FJJAM.DB database.")
+            parse_jam_objects(top_folder_directory, verbose)
         
         # List all folders in the top folder directory
         for folder in os.listdir(top_folder_directory):
@@ -167,7 +178,7 @@ class DFType(PhoneType):
             
             # Check if the folder contains a JAM file
             if not any('jam' in f.lower() for f in files):
-                continue
+                self.needs_reconstruction = True
             
             # Check if the folder contains a JAR file of any type
             if not any(name in f.lower() for f in files for name in valid_jar_names):
