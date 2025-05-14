@@ -23,7 +23,7 @@ pip install construct scsu
 
 ```cmd
 python -m venv venv
-venv\Scripts\activate
+venv\Scripts\activate.bat
 pip install construct scsu
 ```
 
