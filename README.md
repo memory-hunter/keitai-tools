@@ -3,13 +3,13 @@
 Utility to help process raw Java game dump folders from Japanese feature phones (keitai).
 This is the script you use after dumping internal memory of a keitai to have games be formatted in a way that they can be played on a DoCoMo emulator (DoJa or Star).
 
+This tool supports parsing `FJJAM.DB` files found on certain phone models. These files require reconstructing JAM files from the database.
+
 ## Prerequisites
 
 Requires **Python 3.10+**
 
-This tool supports parsing `FJJAM.DB` files found on certain phone models. These files require reconstructing JAM files from the database.
-
-If you're working with a phone that was dumped using a `dump_java` command from [ktdumper](https://github.com/ktdumper/ktdumper), check if any of the folders contain a `jam` file. If not, set up a virtual environment and install dependencies using `pip`.
+Set up a virtual environment and install dependencies using `pip`.
 
 ### Linux
 
