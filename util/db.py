@@ -294,7 +294,7 @@ def extract_jam_objects(fjjam_path: os.PathLike, verbose=False):
                 if column_data["appName"] == None: continue
                 jam_obj = dict()
                 for column in FJJAM_WANTED_COLS:
-                    jam_obj[column] = column_data[column]
+                    jam_obj[column] = column_data.get(column, None)
                 jam_objects.append(jam_obj)
         except StreamError:
             # ignore incomplete entries
