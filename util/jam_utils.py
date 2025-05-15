@@ -278,34 +278,42 @@ def filter_sdf_fields(jam_props: dict) -> tuple[dict, dict]:
 
 def assemble_jam(jam_obj) -> dict:
     jam_dict = dict()
-    jam_dict["AppName"] = jam_obj["appName"]
-    jam_dict["AppVer"] = jam_obj["appVersion"]
-    jam_dict["PackageURL"] = jam_obj["packageUrl"].data if jam_obj["packageUrl"] != None else None
-    jam_dict["AppSize"] = jam_obj["jar_Size"]
+    jam_dict["AppName"] = jam_obj.get("appName", None)
+    jam_dict["AppVer"] = jam_obj.get("appVersion", None)
+    package_url = jam_obj.get("packageUrl", None)
+    jam_dict["PackageURL"] = package_url.data if package_url is not None else None
+    jam_dict["AppSize"] = jam_obj.get("jar_Size", None)
+    
     jam_dict["SPsize"] = []
     for i in range(15):
-        if jam_obj[f"spSize{str(i)}"] != -1:
-            jam_dict["SPsize"].append(jam_obj[f"spSize{str(i)}"])
-        else:
+        sp_size = jam_obj.get(f"spSize{str(i)}", -1)
+        if sp_size is None or sp_size == -1:
+            jam_dict["SPsize"] = str(jam_dict["SPsize"])[1:-1]  # don't ask why
             break
-    jam_dict["SPsize"] = str(jam_dict["SPsize"])[1:-1] # don't ask why
-    jam_dict["AppClass"] = jam_obj["appClass"].data if jam_obj["appClass"] != None else None
-    jam_dict["LastModified"] = jam_obj["lastModifiedTime"]
+        else:
+            if sp_size >= 0:
+                jam_dict["SPsize"].append(sp_size)
+    if len(jam_dict["SPsize"]) == 0:
+        jam_dict.pop("SPsize")        
+    
+    app_class = jam_obj.get("appClass", None)
+    jam_dict["AppClass"] = app_class.data if app_class is not None else None
+
+    last_modified = jam_obj.get("lastModifiedTime", None)
+    jam_dict["LastModified"] = convert_db_datetime(last_modified).strftime("%a, %d %b %Y %H:%M:%S") if last_modified else None
+
     jam_dict["UseNetwork"] = 'http'
     jam_dict["UseBrowser"] = 'launch'
     jam_dict["LaunchApp"] = 'yes'
-    jam_dict["GetUtn"] = 'terminalid,userid'
-    jam_dict["AppParam"] = jam_obj["appParam"].data if jam_obj["appParam"] != None else None
-    jam_dict["LastModified"] = convert_db_datetime(jam_obj["lastModifiedTime"]).strftime("%a, %d %b %Y %H:%M:%S")
+    jam_dict["GetUtn"] = 'userid,terminalid'  # Overwritten duplicate
+    jam_dict["AppParam"] = jam_obj.get("appParam", None).data if jam_obj.get("appParam", None) else None
     jam_dict["AccessUserInfo"] = 'yes'
     jam_dict["GetSysInfo"] = 'yes'
-    jam_dict["ProfileVer"] = jam_obj["profileVersion"]
-    jam_dict["TrustedAPID"] = jam_obj["trustedApid"]
+    jam_dict["ProfileVer"] = jam_obj.get("profileVersion", None)
+    jam_dict["TrustedAPID"] = jam_obj.get("trustedApid", None)
     jam_dict["UseTelephone"] = 'call'
     jam_dict["UseStorage"] = 'ext'
-    jam_dict["GetUtn"] = 'userid,terminalid'
-    jam_dict["LaunchApp"] = 'yes'
-    
+
     jam_dict = {key: value for key, value in jam_dict.items() if value is not None}
     
     return jam_dict
@@ -316,4 +324,6 @@ def parse_jam_objects(java_folder_path: str, verbose=False) -> list:
         jam_dict = assemble_jam(obj)
         id = obj["app_No"]
         inject_jam_into_folder(java_folder_path, id, fmt_plaintext_jam(jam_dict), verbose)
+    if verbose:
+        print("JAM reconstruction from database complete without errors.", end="\n\n")
         
