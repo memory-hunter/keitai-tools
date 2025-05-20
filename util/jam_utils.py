@@ -50,19 +50,10 @@ def parse_props_00(adf_content, sp_start_offset, adf_start_offset, verbose=False
 
     adf_dict["LastModified"] = adf_items[6]
     
-    try:
-        # Try parsing the full string
-        dt_obj = datetime.strptime(adf_dict["LastModified"], "%a, %d %b %Y %H:%M:%S")
-    except ValueError as e:
-        if "unconverted data remains:" in str(e):
-            # Trim off the unconverted portion
-            valid_len = len(adf_dict["LastModified"]) - len(str(e).split("unconverted data remains:")[1].strip())
-            trimmed_str = adf_dict["LastModified"][:valid_len].strip()
-            dt_obj = datetime.strptime(trimmed_str, "%a, %d %b %Y %H:%M:%S")
-        else:
-            raise  # Re-raise any other parsing errors
+    # Parse the date string into a datetime object
+    dt_obj = datetime.strptime(adf_dict["LastModified"], "%a, %d %b %Y %H:%M:%S")
 
-    # Format the datetime object
+    # Format the datetime object back to the desired string format with leading zeroes on single digits
     formatted_date = dt_obj.strftime("%a, %d %b %Y %H:%M:%S")
     
     adf_dict["LastModified"] = formatted_date
