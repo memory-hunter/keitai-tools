@@ -1,11 +1,12 @@
 from phonetypes.PhoneType import PhoneType
 from util.jam_utils import find_plausible_keywords_for_validity, parse_props_plaintext, parse_valid_name, remove_garbage_so, fmt_spsize_header
 from util.structure_utils import create_target_folder
+from util.verify import *
 import os
 
 class SOType(PhoneType):
     """
-    A class to represent a SH phone type of structure with its extraction method.
+    A class to represent a SO phone type of structure with its extraction method.
 
     Description:
     - Top folder contains folders new and old (optional), with files of .dat, .jar and .scr with the same name in the root directory.
@@ -20,16 +21,16 @@ class SOType(PhoneType):
         :param top_folder_directory: Top folder directory to extract games from.
         """
         
-        def process_triplet(name, target_folder):
+        def process_triplet(name, current_directory):
             if verbose:
                 print('-' * 80)
-            dat_path = os.path.join(target_folder, f"{name}.dat")
-            jar_path = os.path.join(target_folder, f"{name}.jar")
+            dat_path = os.path.join(current_directory, f"{name}.dat")
+            jar_path = os.path.join(current_directory, f"{name}.jar")
             if not os.path.isfile(jar_path):
                 if verbose:
-                        print(f"Warning: {name} does not have .jar file. Skipping.\n")
+                    print(f"Warning: {name} does not have .jar file. Skipping.\n")
                 return
-            scr_path = os.path.join(target_folder, f"{name}.scr")
+            scr_path = os.path.join(current_directory, f"{name}.scr")
             
             with open(dat_path, 'rb') as file:
                 dat_content = file.read()
@@ -39,14 +40,10 @@ class SOType(PhoneType):
                 if verbose:
                     print(f"Warning: {name} does not contain all required keywords. Skipping.\n")
                 return
-            else:
-                if verbose:
-                    print(f"Warning: minimal keywords found in {name}. If it still fails to detect any JAM, please report to KeitaiWiki.\n")
             
+            used_offset = -1
             ok = False
             for offset in self.so_type_offsets:
-                if verbose:
-                    print(f"Trying offset 0x{offset:X}")
                 jam_size = 0
                 indent = offset + jam_size
                 for i in range(5):
@@ -58,7 +55,7 @@ class SOType(PhoneType):
                         i-=1
                         continue
                     indent += 2
-                    jam_size = int.from_bytes(dat_content[indent - 2 : indent], "little") - 0x4000
+                    jam_size = int.from_bytes(dat_content[indent - 2 : indent], "little") - 0x4000 # look behind 2 bytes for size after consuming it
                     jam_content = dat_content[indent : indent + jam_size] # plaintext
                     if jam_size > 0x30 and find_plausible_keywords_for_validity(jam_content):
                         ok = True
@@ -68,7 +65,8 @@ class SOType(PhoneType):
                         print(f"Warning: 0x{offset:X} is not a valid offset for {name}. Trying next offset.")
                 if ok:
                     if verbose:
-                        print(f"Using offset 0x{offset:X} as it seems to be the useful one.\n")
+                        print(f"Valid keywords found. Using offset 0x{offset:X}")
+                    used_offset = offset
                     break
             else:
                 if verbose:
@@ -119,11 +117,11 @@ class SOType(PhoneType):
                 if app_name is None:
                     if verbose:
                         print(f"Warning: No valid app name found in {name}. Using base folder name.")
-                        app_name = f'{os.path.basename(name)}'
+                    app_name = f'{os.path.basename(name)}'
             
             # Extract JAR and SP and write files
             # Check there is no duplicate app name existing in the target directory
-            if os.path.exists(os.path.join(target_folder, app_name+".jam")):
+            if os.path.exists(os.path.join(target_directory, app_name+".jam")):
                 if verbose:
                     print(f"Warning: {app_name}.jam already exists in {target_directory}.")
                 app_name = f"{app_name}_{self.duplicate_count+1}"
@@ -133,17 +131,33 @@ class SOType(PhoneType):
                 f.write(jam_file)
                 
             if os.path.exists(jar_path):
-                jar_data = remove_garbage_so(open(jar_path, 'rb').read())
+                if used_offset in self.so_no_garb_offsets:
+                    jar_data = open(jar_path, 'rb').read()
+                else:
+                    jar_data = remove_garbage_so(open(jar_path, 'rb').read())
+
+                if not verify_jar(jar_data):
+                    if verbose:
+                        print(f"Warning: JAR is corrupted for {name}. Skipping.")
+                    return
+                
                 new_jar_path = os.path.join(target_directory, app_name+".jar")
                 with open(new_jar_path, 'wb') as f:
                     f.write(jar_data)
             else:
                 if verbose:
                     print(f"Warning: {name} doesn't have a JAR file. Skipping.")
-                    return
+                return
             
             if os.path.exists(scr_path):
-                sp_data = remove_garbage_so(open(scr_path, 'rb').read())
+                sp_data = open(scr_path, 'rb').read()
+                
+                header_type = sp_data[0x1E]
+                if header_type in [1,2]:
+                    sp_data = remove_garbage_so(open(scr_path, 'rb').read(), header=0x20+0x16)
+                else:
+                    sp_data = remove_garbage_so(open(scr_path, 'rb').read())
+                
                 sp_path = os.path.join(target_directory, app_name+".sp")
                 with open(sp_path, 'wb') as f:
                     sp_size_list = jam_props['SPsize'].split(',')
@@ -169,7 +183,6 @@ class SOType(PhoneType):
             if os.path.exists(subdir):
                 for file in os.listdir(subdir):
                     if file.endswith('.dat'):
-                        print(file)
                         process_triplet(os.path.splitext(file)[0], subdir)
 
     def test_structure(self, top_folder_directory):

@@ -1,4 +1,4 @@
-from util.constants import ENCODINGS, NULL_TYPE_OFFSETS, PLAINTEXT_CUTOFF_OFFSETS, SH_TYPE_OFFSETS, SO_TYPE_OFFSETS
+from util.constants import *
 from abc import ABC, abstractmethod
 
 class PhoneType(ABC):
@@ -16,6 +16,7 @@ class PhoneType(ABC):
         self.plaintext_cutoff_offsets = PLAINTEXT_CUTOFF_OFFSETS
         self.sh_type_offsets = SH_TYPE_OFFSETS
         self.so_type_offsets = SO_TYPE_OFFSETS
+        self.so_no_garb_offsets = SO_NO_GARB
 
     @abstractmethod
     def extract(self, top_folder_directory, verbose=False):
