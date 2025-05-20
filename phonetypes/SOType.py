@@ -21,6 +21,8 @@ class SOType(PhoneType):
         :param top_folder_directory: Top folder directory to extract games from.
         """
         
+        # Mostly contributed by kagekiyo
+        
         def process_triplet(name, current_directory):
             if verbose:
                 print('-' * 80)
