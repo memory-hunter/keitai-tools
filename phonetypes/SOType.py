@@ -163,7 +163,7 @@ class SOType(PhoneType):
                     sp_size_list = jam_props['SPsize'].split(',')
                     sp_size_list = [int(sp_size) for sp_size in sp_size_list]
                     header = fmt_spsize_header(sp_size_list)
-                    f.write(fmt_spsize_header(header))
+                    f.write(header)
                     f.write(sp_data)
                 
             if verbose:
