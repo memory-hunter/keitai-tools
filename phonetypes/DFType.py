@@ -158,6 +158,18 @@ class DFType(PhoneType):
         
         :return: True if at least one subfolder satisfies the D/F type structure, False otherwise.
         """
+        
+        keywords = [
+            "ENTRY",
+            "JAVAADL",
+            "JAVAEXE",
+            "JAVASYS",
+            "PUSHSMS"
+        ]
+        
+        if any(k in keywords for k in os.listdir(top_folder_directory)):
+            return None # exit early if a modern n type is found
+        
         if not os.path.isdir(top_folder_directory):
             return None
         
