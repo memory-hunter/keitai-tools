@@ -327,7 +327,7 @@ def assemble_jam(jam_obj) -> dict:
     
     return jam_dict
 
-def parse_jam_objects(java_folder_path: str, verbose=False) -> list:
+def parse_jam_objects(java_folder_path: str, verbose=False):
     jam_objects = extract_jam_objects(os.path.join(java_folder_path, "FJJAM.DB"), verbose)
     for obj in jam_objects:
         jam_dict = assemble_jam(obj)
