@@ -9,9 +9,14 @@ class SOType(PhoneType):
     A class to represent a SO phone type of structure with its extraction method.
 
     Description:
-    - Top folder contains folders new and old (optional), with files of .dat, .jar and .scr with the same name in the root directory.
-    - .jar, and .sp file has custom stuff intermingled (header + footer + oob in between, needs removal).
-    
+    - Top folder contains .apl and .scp files with same names.
+    - .scp files are direct .sp files.
+    - .apl file contains headers and contents of (not limited to these, since other files need to be discovered):
+        - jam file
+        - sdf file
+        - icon160 file
+        - icon48 file
+        - jar file
     """
 
     def extract(self, top_folder_directory, verbose=False):
@@ -20,7 +25,6 @@ class SOType(PhoneType):
 
         :param top_folder_directory: Top folder directory to extract games from.
         """
-        
         # Mostly contributed by kagekiyo
         
         def process_triplet(name, current_directory):
@@ -192,8 +196,12 @@ class SOType(PhoneType):
         Test if the top folder directory is of a SO phone file structure.
 
         :param top_folder_directory: Top folder directory to test.
-        :return: True if the top folder directory is of a SO phone file structure, False otherwise.
+        :return: True if the top folder directory is of a SH phone file structure, False otherwise.
         """
+        # check if folders new and old exist
+        if not os.path.exists(os.path.join(top_folder_directory, 'new')) or not os.path.exists(os.path.join(top_folder_directory, 'old')):
+            return None
+        
         # check at least one .dat, .jar, .scr files with same name exist in the root dir (000.dat, 000.jar, 000.scr)
         for file in os.listdir(top_folder_directory):
             if file.endswith('.dat'):
