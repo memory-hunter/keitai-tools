@@ -118,3 +118,12 @@ FJJAM_WANTED_COLS = [
     "accessUserInfo",
     "getPrivateInfo"
 ]
+SO_TYPE_OFFSETS = [
+    0xD3A,
+    0xD42,
+    0xDF4,
+    0xF82,
+]
+SO_NO_GARB = [
+    0xF82,
+]
