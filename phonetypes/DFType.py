@@ -167,7 +167,7 @@ class DFType(PhoneType):
             "PUSHSMS"
         ]
         
-        if any(k in keywords for k in os.listdir(top_folder_directory)):
+        if any(k.upper() in keywords for k in os.listdir(top_folder_directory)):
             return None # exit early if a modern n type is found
         
         if not os.path.isdir(top_folder_directory):
