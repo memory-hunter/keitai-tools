@@ -4,7 +4,6 @@ from util.postprocess import *
 from phonetypes import DFType, SHType, Null3FolderType, ModernNType, NullPlain3FolderType, NullPlain3FolderCSPType, ModernPType, SOType, SHOldType
 
 PHONE_TYPES = {
-    "D/F": DFType.DFType,
     "SH": SHType.SHType,
     "Null3Folder": Null3FolderType.Null3FolderType,
     "ModernN": ModernNType.ModernNType,
@@ -13,6 +12,7 @@ PHONE_TYPES = {
     "ModernP": ModernPType.ModernPType,
     "SO": SOType.SOType,
     "SHOld": SHOldType.SHOldType,
+    "D/F": DFType.DFType,
 }
 
 POSTPROCESS_OPTIONS = {
@@ -21,7 +21,9 @@ POSTPROCESS_OPTIONS = {
     (post_process_sonic_cafe, "Rename Sonic Cafe games by using 'tgt' field in the link")
 }
 
-def get_phone_type(directory):
+def get_phone_type(directory, idx=-1):
+    if idx != -1:
+        return PHONE_TYPES[idx]
     for name, cls in PHONE_TYPES.items():
         if cls().test_structure(directory):
             return name, cls()
@@ -41,7 +43,21 @@ def main():
         return
 
     print(f"Detected phone type: {phone_type_name}. Extracting...")
-    phone_type_instance.extract(os.path.abspath(args.top_folder_directory), verbose=args.verbose)
+    try:
+        phone_type_instance.extract(os.path.abspath(args.top_folder_directory), verbose=args.verbose)
+    except:
+        print("Extraction failed with an exception.")
+        print("If you think the phone type was misdetected")
+        print("Please enter a possible phone type:")
+        temptypes = dict(enumerate(PHONE_TYPES.keys()))
+        for i, type in temptypes.items():
+            print(f"{i}: {type}")
+        type = input("Which type: ")
+        phone_type_instance = get_phone_type(args.top_folder_directory, temptypes[int(type)])
+        if not phone_type_instance:
+            print(f"Directory {args.top_folder_directory} does not match the entered phone type. Quitting")
+            return
+        phone_type_instance().extract(os.path.abspath(args.top_folder_directory), verbose=args.verbose)
 
     output_folder = os.path.abspath(os.path.join(args.top_folder_directory, os.pardir, 'output'))
     for func, _ in POSTPROCESS_OPTIONS:
