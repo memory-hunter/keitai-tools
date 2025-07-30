@@ -294,16 +294,17 @@ def assemble_jam(jam_obj) -> dict:
     jam_dict["AppSize"] = jam_obj.get("jar_Size", None)
     
     jam_dict["SPsize"] = []
+
     for i in range(15):
-        sp_size = jam_obj.get(f"spSize{str(i)}", -1)
-        if sp_size is None or sp_size == -1:
-            jam_dict["SPsize"] = str(jam_dict["SPsize"])[1:-1]  # don't ask why
+        sp_size = jam_obj.get(f"spSize{i}", -1)
+        if sp_size == -1:
             break
-        else:
-            if sp_size >= 0:
-                jam_dict["SPsize"].append(sp_size)
-    if len(jam_dict["SPsize"]) == 0:
-        jam_dict.pop("SPsize")        
+        jam_dict["SPsize"].append(str(sp_size))
+
+    if not jam_dict["SPsize"]:
+        jam_dict.pop("SPsize", None)
+    else:
+        jam_dict["SPsize"] = ",".join(jam_dict["SPsize"])
     
     app_class = jam_obj.get("appClass", None)
     jam_dict["AppClass"] = app_class.data if app_class is not None else None
