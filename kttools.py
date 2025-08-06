@@ -45,8 +45,9 @@ def main():
     print(f"Detected phone type: {phone_type_name}. Extracting...")
     try:
         phone_type_instance.extract(os.path.abspath(args.top_folder_directory), verbose=args.verbose)
-    except:
+    except Exception as e:
         print("Extraction failed with an exception.")
+        print(f"Message is {e.args[0]}")
         print("If you think the phone type was misdetected")
         print("Please enter a possible phone type:")
         temptypes = dict(enumerate(PHONE_TYPES.keys()))
