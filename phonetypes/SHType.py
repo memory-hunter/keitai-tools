@@ -21,7 +21,7 @@ class SHType(PhoneType):
 
     def extract(self, top_folder_directory, verbose=False):
         """
-        Extract games from the top folder directory in a SH phone file structure.
+        Extract games from the top folder directory in a SO phone file structure.
 
         :param top_folder_directory: Top folder directory to extract games from.
         """
@@ -196,10 +196,9 @@ class SHType(PhoneType):
 
     def test_structure(self, top_folder_directory):
         """
-        Test if the top folder directory is of a SH phone file structure.
-
-        :param top_folder_directory: Top folder directory to test.
-        :return: True if the top folder directory is of a SH phone file structure, False otherwise.
+        Test the structure of the top folder directory to see if it is of SH type.
+        
+        :param top_folder_directory: Top folder directory to extract games from.
         """
         files = os.listdir(top_folder_directory)
         subdirectories = [f for f in files if os.path.isdir(os.path.join(top_folder_directory, f))]

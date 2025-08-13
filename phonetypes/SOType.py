@@ -193,10 +193,9 @@ class SOType(PhoneType):
 
     def test_structure(self, top_folder_directory):
         """
-        Test if the top folder directory is of a SO phone file structure.
-
-        :param top_folder_directory: Top folder directory to test.
-        :return: True if the top folder directory is of a SH phone file structure, False otherwise.
+        Test the structure of the top folder directory to see if it is of SO type.
+        
+        :param top_folder_directory: Top folder directory to extract games from.
         """
         # check if folders new and old exist
         if not os.path.exists(os.path.join(top_folder_directory, 'new')) or not os.path.exists(os.path.join(top_folder_directory, 'old')):

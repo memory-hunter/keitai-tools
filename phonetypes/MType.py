@@ -19,10 +19,8 @@ class MType(PhoneType):
     
     def test_structure(self, top_folder_directory):
         """
-        Test the structure of the top folder directory to see if it is an M type.
+        Test the structure of the top folder directory to see if it is of M type phone file structure type.
         
         :param top_folder_directory: Top folder directory to test the structure of.
-        
-        :return: True if at least one subfolder satisfies the D/F type structure, False otherwise.
         """
         pass

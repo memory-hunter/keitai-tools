@@ -149,14 +149,11 @@ class DFType(PhoneType):
                 # Process the subdirectory and output into folder "output" at the same level as top level directory
                 process_subdirectory(folder_path, target_directory)
                 
-    def test_structure(self, top_folder_directory, verbose=False) -> bool:
+    def test_structure(self, top_folder_directory):
         """
-        Test the structure of the top folder directory to see if it is a D/F type.
+        Test the structure of the top folder directory to see if it is of D/F file structure type.
         
         :param top_folder_directory: Top folder directory to test the structure of.
-        :param verbose: If True, prints debug information.
-        
-        :return: True if at least one subfolder satisfies the D/F type structure, False otherwise.
         """
         
         keywords = [

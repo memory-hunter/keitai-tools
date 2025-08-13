@@ -17,6 +17,11 @@ class NullPlain3FolderCSPType(PhoneType):
     """
     
     def extract(self, top_folder_directory, verbose=False):
+        """
+        Extract games from the top folder directory in this phone file structure.
+        
+        :param top_folder_directory: Top folder directory to extract games from.
+        """
         # Create the target directory at the same level as the top folder directory
         target_directory = create_target_folder(top_folder_directory)
         

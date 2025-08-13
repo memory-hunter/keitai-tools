@@ -137,10 +137,9 @@ class SHOldType(PhoneType):
         
     def test_structure(self, top_folder_directory):
         """
-        Test if the top folder directory is of old SH phone file structure.
-
-        :param top_folder_directory: Top folder directory to test.
-        :return: True if the top folder directory is of old SH phone file structure, False otherwise.
+        Test the structure of the top folder directory to see if it is of Old SH type.
+        
+        :param top_folder_directory: Top folder directory to extract games from.
         """
         files = os.listdir(top_folder_directory)
         if not any(str(dir).lower().endswith(".jav") for dir in files):
