@@ -297,7 +297,7 @@ def assemble_jam(jam_obj) -> dict:
 
     for i in range(15):
         sp_size = jam_obj.get(f"spSize{i}", -1)
-        if sp_size == -1:
+        if sp_size == -1 or sp_size == 0 or sp_size is None:
             break
         jam_dict["SPsize"].append(str(sp_size))
 
