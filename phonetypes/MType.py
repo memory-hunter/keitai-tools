@@ -28,6 +28,12 @@ class MType(PhoneType):
             jar_file = os.path.join(top_folder_directory, adf_file_name + ".jar")
             sp_file = os.path.join(top_folder_directory, adf_file_name + ".rms")
             
+            # Check if JAR exists to quit prematuely in case
+            if (not os.path.exists(jar_file)):
+                if verbose:
+                    print(f"No corresponding JAR file for ADF named {adf_file_name}. Skipping.")
+                return
+            
             # Read JAM file with different encodings
             jam_file = None
             for encoding in self.encodings:
