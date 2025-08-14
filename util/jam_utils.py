@@ -347,3 +347,24 @@ def remove_garbage_so(content, interval=0x4000, header=0x20, footer=0x13, oob=0x
         new_content += content_[i : end]
 
     return new_content
+
+def swap_spsize_header_endian(header_bytes: bytes) -> bytes:
+    """
+    Swap endianness of each 4-byte SP size in the header, stopping at 0xFFFFFFFF.
+    
+    :param header_bytes: 64-byte header
+    :return: Header with each 4-byte word swapped unless 0xFFFFFFFF is encountered
+    """
+    swapped_header = b""
+    
+    for i in range(0, len(header_bytes), 4):
+        chunk = header_bytes[i:i+4]
+        
+        if chunk == b"\xFF\xFF\xFF\xFF":
+            swapped_header += chunk
+        else:
+            # Unpack as little-endian, repack as big-endian (or vice versa)
+            value = struct.unpack("<I", chunk)[0]
+            swapped_header += struct.pack(">I", value)
+    
+    return swapped_header
