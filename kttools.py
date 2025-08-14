@@ -1,7 +1,7 @@
 import os
 import argparse
 from util.postprocess import *
-from phonetypes import DFType, SHType, Null3FolderType, ModernNType, NullPlain3FolderType, NullPlain3FolderCSPType, ModernPType, SOType, SHOldType
+from phonetypes import DFType, SHType, Null3FolderType, ModernNType, NullPlain3FolderType, NullPlain3FolderCSPType, ModernPType, SOType, SHOldType, MType
 
 PHONE_TYPES = {
     "SH": SHType.SHType,
@@ -13,6 +13,7 @@ PHONE_TYPES = {
     "SO": SOType.SOType,
     "SHOld": SHOldType.SHOldType,
     "D/F": DFType.DFType,
+    "M": MType.MType,
 }
 
 POSTPROCESS_OPTIONS = {
@@ -47,7 +48,7 @@ def main():
         phone_type_instance.extract(os.path.abspath(args.top_folder_directory), verbose=args.verbose)
     except Exception as e:
         print("Extraction failed with an exception.")
-        print(f"Message is {e.args[0]}")
+        print(f"Message is {e}")
         print("If you think the phone type was misdetected")
         print("Please enter a possible phone type:")
         temptypes = dict(enumerate(PHONE_TYPES.keys()))
