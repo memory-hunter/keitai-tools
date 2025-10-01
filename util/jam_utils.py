@@ -324,6 +324,7 @@ def assemble_jam(jam_obj) -> dict:
     jam_dict["TrustedAPID"] = jam_obj.get("trustedApid", None)
     jam_dict["UseTelephone"] = 'call'
     jam_dict["UseStorage"] = 'ext'
+    jam_dict["DrawArea"] = f"{jam_obj.get('drawAreaWidth', 0)}x{jam_obj.get('drawAreaHeight', 0)}" if jam_obj.get('drawAreaWidth', 0) and jam_obj.get('drawAreaHeight', 0) else None
 
     jam_dict = {key: value for key, value in jam_dict.items() if value is not None}
     
