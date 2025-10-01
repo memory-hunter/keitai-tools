@@ -287,7 +287,8 @@ def filter_sdf_fields(jam_props: dict) -> tuple[dict, dict]:
 
 def assemble_jam(jam_obj) -> dict:
     jam_dict = dict()
-    jam_dict["AppName"] = jam_obj.get("appName", None)
+    app_name_full = jam_obj.get("appNameFull", None)
+    jam_dict["AppName"] = app_name_full.data if app_name_full is not None else jam_obj.get("appName", None)
     jam_dict["AppVer"] = jam_obj.get("appVersion", None)
     package_url = jam_obj.get("packageUrl", None)
     jam_dict["PackageURL"] = package_url.data if package_url is not None else None

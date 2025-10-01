@@ -68,6 +68,7 @@ SDF_PROP_NAMES = [
 FJJAM_WANTED_COLS = [
     "app_No",
     "appName",
+    "appNameFull",
     "appVersion",
     "packageUrl",
     "profileVersion",
@@ -118,7 +119,10 @@ FJJAM_WANTED_COLS = [
     "launchApp",
     "launchByDeny",
     "accessUserInfo",
-    "getPrivateInfo"
+    "getPrivateInfo",
+    "targetDevice",
+    "drawAreaWidth",
+    "drawAreaHeight",
 ]
 SO_TYPE_OFFSETS = [
     0xD3A,
