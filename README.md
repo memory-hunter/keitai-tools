@@ -3,7 +3,7 @@
 Utility to help process raw Java game dump folders from Japanese feature phones (keitai).
 This is the script you use after dumping internal memory of a keitai to have games be formatted in a way that they can be played on a DoCoMo emulator (DoJa or Star).
 
-This tool supports parsing `FJJAM.DB` files found on certain phone models. These files require reconstructing JAM files from the database.
+This tool supports parsing `FJJAM.DB` files found on certain phone models. That file is required for the reconstruction of JAM files for applis.
 
 ## Prerequisites
 
