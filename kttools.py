@@ -19,7 +19,8 @@ PHONE_TYPES = {
 POSTPROCESS_OPTIONS = {
     (post_process_SIMPLE, "Rename SIMPLE games (use if you see many 'dljar' files)"),
     (post_process_konami, "Rename Konami games by using the 'appliname' field in the link"),
-    (post_process_sonic_cafe, "Rename Sonic Cafe games by using 'tgt' field in the link")
+    (post_process_sonic_cafe, "Rename Sonic Cafe games by using 'tgt' field in the link"),
+    (post_process_genki, "Rename Genki games by using 'name' field in the link"),
 }
 
 def get_phone_type(directory, idx=-1):
