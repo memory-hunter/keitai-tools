@@ -124,7 +124,11 @@ class ModernNType(PhoneType):
             with open(os.path.join(target_directory, f"{app_name}.jam"), 'w', encoding=used_encoding) as f:
                 f.write(adf_file)
             if os.path.exists(jar_file_path):
-                shutil.copy(jar_file_path, os.path.join(target_directory, f"{app_name}.jar"))
+               shutil.copy(jar_file_path, os.path.join(target_directory, f"{app_name}.jar"))
+            else:
+                jar_file_path = os.path.join(subfolder, f"JAR")
+                if os.path.exists(jar_file_path):
+                    shutil.copy(jar_file_path, os.path.join(target_directory, f"{app_name}.jar"))
             # Add a header to SP file
             if os.path.exists(sp_file_path):
                 sp_size_list = jam_props['SPsize'].split(',')
@@ -134,8 +138,22 @@ class ModernNType(PhoneType):
                     with open(os.path.join(target_directory, f"{app_name}.sp"), 'wb') as f:
                         f.write(sp_header)
                         f.write(sp.read())
+            else:
+                sp_file_path = os.path.join(subfolder, f"SP")
+                if os.path.exists(sp_file_path):
+                    sp_size_list = jam_props['SPsize'].split(',')
+                    sp_size_list = [int(sp_size) for sp_size in sp_size_list]
+                    sp_header = fmt_spsize_header(sp_size_list)
+                    with open(sp_file_path, 'rb') as sp:
+                        with open(os.path.join(target_directory, f"{app_name}.sp"), 'wb') as f:
+                            f.write(sp_header)
+                            f.write(sp.read())
             if os.path.exists(mini_file_path):
-                shutil.copy(mini_file_path, os.path.join(target_directory, f"{app_name}_mini.jar"))
+                    shutil.copy(mini_file_path, os.path.join(target_directory, f"{app_name}_mini.jar"))
+            else:
+                mini_file_path = os.path.join(subfolder, f"MINI")
+                if os.path.exists(mini_file_path):
+                    shutil.copy(mini_file_path, os.path.join(target_directory, f"{app_name}_mini.jar"))
                 
             if verbose:
                 print(f"Processed: {subfolder} -> {app_name}\n")
