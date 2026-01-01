@@ -46,6 +46,7 @@ class NullPlain3FolderCSPType(PhoneType):
             else:
                 if verbose:
                     print(f"Warning: No ADF file found for {jar_file}. Skipping.\n")
+                continue
             
             if verbose:
                 print('-'*80)
