@@ -6,7 +6,7 @@ import struct
 import os
 from datetime import datetime
 from urllib.parse import urlparse, parse_qs
-from util.constants import EARLY_NULL_TYPE_OFFSETS, MINIMAL_VALID_KEYWORDS, SDF_PROP_NAMES
+from util.constants import EARLY_NULL_TYPE_OFFSETS, MINIMAL_VALID_KEYWORDS, SDF_PROP_NAMES, ENCODINGS
 from util.db import extract_jam_objects, convert_db_datetime
 from util.structure_utils import inject_jam_into_folder
 
@@ -25,8 +25,21 @@ def parse_props_00(adf_content, sp_start_offset, adf_start_offset, verbose=False
     is_early = (sp_start_offset, adf_start_offset) in EARLY_NULL_TYPE_OFFSETS
     
     adf_items = filter(None, adf_content[adf_start_offset:].split(b"\00"))
-    adf_items = list(map(lambda b: b.decode("cp932", errors="replace"), adf_items))
+    decoded = False
+    for encoding in ENCODINGS:
+        try:
+            adf_items = list(map(lambda b: b.decode(encoding), adf_items))
+            decoded = True
+            break
+        except UnicodeDecodeError:
+            if verbose:
+                print(f"Warning: UnicodeDecodeError with {encoding}. Trying next encoding.")
 
+    if not decoded:
+        if verbose:
+            print(f"Warning: Could not decode with any encoding. Skipping.\n")
+        return None
+    
     adf_dict["AppName"] = adf_items[0]
 
     if not adf_items[1].startswith("http"):
