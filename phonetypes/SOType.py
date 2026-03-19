@@ -198,8 +198,8 @@ class SOType(PhoneType):
         :param top_folder_directory: Top folder directory to extract games from.
         """
         # check if folders new and old exist
-        if not os.path.exists(os.path.join(top_folder_directory, 'new')) or not os.path.exists(os.path.join(top_folder_directory, 'old')):
-            return None
+        # if not os.path.exists(os.path.join(top_folder_directory, 'new')) or not os.path.exists(os.path.join(top_folder_directory, 'old')):
+        #     return None
         
         # check at least one .dat, .jar, .scr files with same name exist in the root dir (000.dat, 000.jar, 000.scr)
         for file in os.listdir(top_folder_directory):
