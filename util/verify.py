@@ -8,7 +8,7 @@ def verify_jar(jar_data):
     try:
         with io.BytesIO(jar_data) as jar_stream, zipfile.ZipFile(jar_stream, "r") as f:
             return f.testzip() is None
-    except zipfile.BadZipFile:
+    except Exception:
         return False
 
 def verify_sp(spsize, jam_spsize_str):
