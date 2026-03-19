@@ -133,8 +133,8 @@ class MType(PhoneType):
         # Expected files
         required_files = ["J2MEPCK", "J2MEST.SYS", "J2MEST.USR", "trjava.log"]
         files = os.listdir(top_folder_directory)
-        
-        if any(file in required_files for file in required_files):
+
+        if all(file in files for file in required_files):
             return "M"
         
         return None
