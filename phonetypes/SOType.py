@@ -139,6 +139,12 @@ class SOType(PhoneType):
             if os.path.exists(jar_path):
                 if used_offset in self.so_no_garb_offsets:
                     jar_data = open(jar_path, 'rb').read()
+                    # trim leading bytes before the JAR header signature, ending with 03 04 or 07 08
+                    jar_signature_index = jar_data.find(b"PK\x03\x04")
+                    if jar_signature_index == -1:
+                        jar_signature_index = jar_data.find(b"PK\x07\x08")
+                    if jar_signature_index != -1:
+                        jar_data = jar_data[jar_signature_index:]
                 else:
                     jar_data = remove_garbage_so(open(jar_path, 'rb').read())
 
