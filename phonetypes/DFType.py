@@ -101,8 +101,8 @@ class DFType(PhoneType):
             dst = os.path.join(target_directory, f"{app_name}.jam")
             shutil.copy2(src, dst)
             
-            # Find jar files, could be "jar" or ("fulljar" and/or "minijar")
-            jar_files = [f for f in files if any(substring == f.lower() for substring in ['jar', 'fulljar', 'minijar'])]
+            # Find jar files, could be "jar" or ("fulljar" and/or "minijar") or have format endings of that ending
+            jar_files = [f for f in files if any(substring in f.lower() for substring in ['jar', 'fulljar', 'minijar'])]
             
             # Copy over jar files, name jar and fulljar files with app name, for minijar, use app name + "_mini"
             for jar_file in jar_files:
