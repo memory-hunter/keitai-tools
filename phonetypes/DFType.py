@@ -111,8 +111,8 @@ class DFType(PhoneType):
                 else:
                     shutil.copy2(os.path.join(subfolder, jar_file), os.path.join(target_directory, f"{app_name}.jar"))
                     
-            # Concatenate all "spX" files
-            sp_files = [f for f in files if f.lower().startswith('sp')]
+            # Concatenate all "spX" files in order
+            sp_files = sorted((f for f in files if f.lower().startswith('sp') and f[2:].isdigit()), key=lambda f: int(f[2:]))
             concatenated_content = b''
             for sp_file in sp_files:
                 with open(os.path.join(subfolder, sp_file), 'rb') as f:

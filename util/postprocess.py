@@ -33,7 +33,7 @@ def post_process_SIMPLE(output_folder_path, verbose=False):
                                         os.replace(path, os.path.join(root, real_name + ext))
                             if verbose:
                                 print(f"Renamed: {file} -> {real_name}")
-                                break
+                        break
                     except UnicodeDecodeError:
                         if verbose:
                             print(f"Could not decode {file} with encoding {encoding}, trying next encoding.")
