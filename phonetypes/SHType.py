@@ -46,7 +46,8 @@ class SHType(PhoneType):
             app_id = int(os.path.splitext(os.path.basename(apl_file_path))[0], 16)
             app_info = next(filter(lambda x: x["AppId"] == app_id, db_dict["UNQ"]), {})
             tmp = app_info.get("AdfUrl", None)
-            package_url = "" if tmp is None else tmp["data"]
+            if tmp is not None:
+                package_url = tmp["data"]
             
             valid_offset = -1
             
