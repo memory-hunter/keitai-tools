@@ -7,7 +7,7 @@ import os
 from datetime import datetime
 from urllib.parse import urlparse, parse_qs
 from util.constants import EARLY_NULL_TYPE_OFFSETS, MINIMAL_VALID_KEYWORDS, SDF_PROP_NAMES, ENCODINGS
-from util.db import extract_jam_objects, convert_db_datetime
+from util.db import extract_db_objects, convert_db_datetime
 from util.structure_utils import inject_jam_into_folder
 
 def parse_props_00(adf_content, sp_start_offset, adf_start_offset, verbose=False) -> dict:
@@ -300,10 +300,10 @@ def filter_sdf_fields(jam_props: dict) -> tuple[dict, dict]:
 def assemble_jam(jam_obj) -> dict:
     jam_dict = dict()
     app_name_full = jam_obj.get("appNameFull", None)
-    jam_dict["AppName"] = app_name_full.data if app_name_full is not None else jam_obj.get("appName", None)
+    jam_dict["AppName"] = app_name_full["data"] if app_name_full is not None else jam_obj.get("appName", None)
     jam_dict["AppVer"] = jam_obj.get("appVersion", None)
-    package_url = jam_obj.get("packageUrl", None)
-    jam_dict["PackageURL"] = package_url.data if package_url is not None else None
+    package_url = jam_obj.get("adfUrl", None)
+    jam_dict["PackageURL"] = package_url["data"] if package_url is not None else None
     jam_dict["AppSize"] = jam_obj.get("jar_Size", None)
     
     jam_dict["SPsize"] = []
@@ -320,7 +320,7 @@ def assemble_jam(jam_obj) -> dict:
         jam_dict["SPsize"] = ",".join(jam_dict["SPsize"])
     
     app_class = jam_obj.get("appClass", None)
-    jam_dict["AppClass"] = app_class.data if app_class is not None else None
+    jam_dict["AppClass"] = app_class["data"] if app_class is not None else None
 
     last_modified = jam_obj.get("lastModifiedTime", None)
     jam_dict["LastModified"] = convert_db_datetime(last_modified).strftime("%a, %d %b %Y %H:%M:%S") if last_modified else None
@@ -329,7 +329,7 @@ def assemble_jam(jam_obj) -> dict:
     jam_dict["UseBrowser"] = 'launch'
     jam_dict["LaunchApp"] = 'yes'
     jam_dict["GetUtn"] = 'userid,terminalid'  # Overwritten duplicate
-    jam_dict["AppParam"] = jam_obj.get("appParam", None).data if jam_obj.get("appParam", None) else None
+    jam_dict["AppParam"] = jam_obj.get("appParam", None)["data"] if jam_obj.get("appParam", None) else None
     jam_dict["AccessUserInfo"] = 'yes'
     jam_dict["GetSysInfo"] = 'yes'
     jam_dict["ProfileVer"] = jam_obj.get("profileVersion", None)
@@ -343,7 +343,8 @@ def assemble_jam(jam_obj) -> dict:
     return jam_dict
 
 def parse_jam_objects(java_folder_path: str, verbose=False):
-    jam_objects = extract_jam_objects(os.path.join(java_folder_path, "FJJAM.DB"), verbose)
+    db_dict = extract_db_objects(os.path.join(java_folder_path, "FJJAM.DB"), verbose)
+    jam_objects = db_dict["iApplis"]
     for obj in jam_objects:
         jam_dict = assemble_jam(obj)
         id = obj["app_No"]

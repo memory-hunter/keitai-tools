@@ -7,6 +7,19 @@ import scsu
 from util.constants import FJJAM_WANTED_COLS
 from datetime import datetime, timedelta
 
+def convert_container(obj):
+    if isinstance(obj, Container):
+        return {
+            k: convert_container(v)
+            for k, v in obj.items()
+            if k != "_io"
+        }
+
+    if isinstance(obj, list):
+        return [convert_container(v) for v in obj]
+
+    return obj
+
 checked_uid_struct = Struct(
     "uid" / Array(3, Int32ul),
     "checksum" / Int32ul
@@ -185,9 +198,9 @@ cluster_struct = Struct(
     "data" / Array(16, If(lambda this: this.sizes[this._index] is not None, Bytes(lambda this: this.sizes[this._index])))
 )
 
-def extract_jam_objects(fjjam_path: os.PathLike, verbose=False):
+def extract_db_objects(db_path: os.PathLike, verbose=False):
     # Author: usernameak | /bin/cat
-    with open(fjjam_path, "rb") as f:
+    with open(db_path, "rb") as f:
         checked_uid = checked_uid_struct.parse(f.read(16))
         store_header = store_header_struct.parse(f.read(16))
 
@@ -212,6 +225,7 @@ def extract_jam_objects(fjjam_path: os.PathLike, verbose=False):
     db_schema = db_schema_struct.parse(data[db_schema_offset:])
 
     # Convert the schema to Construct schema
+    db_dict = {}
     for table in db_schema.tables:
         columns_schemas = [
             "_rowSize" / TCardinality
@@ -277,35 +291,33 @@ def extract_jam_objects(fjjam_path: os.PathLike, verbose=False):
             # We use Optional because if there are no following entries, eof can be premature
             columns_schemas.append(column.name / Optional(column_schema))
 
-    table_construct_schema = Struct(*columns_schemas)
-    table_token_offset = toc.get_offset(table.iTokenId)
-    table_token = table_token_struct.parse(data[table_token_offset:])
-    cur_cluster_id = table_token.iHead
-    
-    jam_objects = []
-    
-    while cur_cluster_id != 0:
-        cluster_offset = toc.get_offset(cur_cluster_id)
-        cluster = cluster_struct.parse(data[cluster_offset:])
-        try:
-            for record_data in cluster.data:
-                if record_data is None: continue
-                column_data = table_construct_schema.parse(record_data)
-                if column_data["appName"] == None: continue
-                jam_obj = dict()
-                for column in FJJAM_WANTED_COLS:
-                    jam_obj[column] = column_data.get(column, None)
-                jam_objects.append(jam_obj)
-        except StreamError:
-            # ignore incomplete entries
-            pass
+        table_construct_schema = Struct(*columns_schemas)
+        table_token_offset = toc.get_offset(table.iTokenId)
+        table_token = table_token_struct.parse(data[table_token_offset:])
+        cur_cluster_id = table_token.iHead
+        
+        db_objects = []
+        
+        while cur_cluster_id != 0:
+            cluster_offset = toc.get_offset(cur_cluster_id)
+            cluster = cluster_struct.parse(data[cluster_offset:])
+            try:
+                for record_data in cluster.data:
+                    if record_data is None: continue
+                    column_data = table_construct_schema.parse(record_data)
+                    db_objects.append(convert_container(column_data))
+            except StreamError:
+                # ignore incomplete entries
+                pass
 
-        cur_cluster_id = cluster.iNext & 0xFFFFFF
+            cur_cluster_id = cluster.iNext & 0xFFFFFF
+        
+        if verbose:
+            print(f"Parsed {len(db_objects)} valid entries from the database.")
+            
+        db_dict[table.name] = db_objects
     
-    if verbose:
-        print(f"Parsed {len(jam_objects)} valid entries from the database.")
-    
-    return jam_objects
+    return db_dict
 
 def convert_db_datetime(microseconds: int) -> datetime:
     # From Symbian DB:
