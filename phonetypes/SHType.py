@@ -3,13 +3,15 @@ import os
 import struct
 from util.jam_utils import parse_props_plaintext, parse_valid_name, fmt_spsize_header, find_plausible_keywords_for_validity, is_valid_sh_header, filter_sdf_fields, fmt_plaintext_jam
 from util.structure_utils import create_target_folder
+from util.db import extract_db_objects
 
 class SHType(PhoneType):
     """
-    A class to represent a SH phone type of structure with its extraction method.
+    A class to represent a SH phone type of structure with its extraction method. (e.g. SH904i)
 
     Description:
-    - Top folder contains .apl and .scp files with same names.
+    - top folder contains "DB", "LIST", "STS", "BACKUP" folder.
+    - the LIST folder contains .apl and .scp files with same names.
     - .scp files are direct .sp files.
     - .apl file contains headers and contents of (not limited to these, since other files need to be discovered):
         - jam file
@@ -23,12 +25,12 @@ class SHType(PhoneType):
         """
         Extract games from the top folder directory in a SO phone file structure.
 
-        :param top_folder_directory: Top folder directory to extract games from.
+        :param top_folder_directory: Top folder directory to extract games from. (SH902i/JAVA)
         """
         # Create the target directory at the same level as the top folder directory
         target_directory = create_target_folder(top_folder_directory)
 
-        def process_file(apl_file_path):
+        def process_file(apl_file_path, db_dict):
             if verbose:
                 print('-' * 80)
 
@@ -40,6 +42,12 @@ class SHType(PhoneType):
                 if verbose:
                     print(f"Warning: Skipping file {apl_name}: No minimal required keywords found for the .apl to have a valid JAM file")
                 return
+
+            app_id = int(os.path.splitext(os.path.basename(apl_file_path))[0], 16)
+            app_info = next(filter(lambda x: x["AppId"] == app_id, db_dict["UNQ"]), {})
+            tmp = app_info.get("AdfUrl", None)
+            if tmp is not None:
+                package_url = tmp["data"]
             
             valid_offset = -1
             
@@ -123,12 +131,17 @@ class SHType(PhoneType):
                 if valid_offset == 0:
                     # Filter out SDF fields
                     jam_props, sdf_props = filter_sdf_fields(jam_props)
+
+                    if package_url is not None:
+                        jam_props["PackageURL"] = package_url
+                    else:
+                        package_url = jam_props["PackageURL"]
+
                     jam_file = fmt_plaintext_jam(jam_props)
                     sdf_file = fmt_plaintext_jam(sdf_props).encode()
                     sdf_size = len(sdf_file)
                 
                 # Determine app name
-                package_url = jam_props.get('PackageURL')
                 app_name = None
                 if package_url:
                     try:
@@ -185,14 +198,20 @@ class SHType(PhoneType):
                     print(f"Processed: {apl_name} -> {app_name}\n")
 
         # List all files
-        files = os.listdir(top_folder_directory)
+        app_folder = os.path.join(top_folder_directory, "LIST")
+        files = os.listdir(app_folder)
+
+        # get db data
+        db_folder = os.path.join(top_folder_directory, "DB")
+        db_path = os.path.join(db_folder, "SHJAMMAIN.DB")
+        db_dict = extract_db_objects(db_path, verbose=verbose)
 
         # Process APL files
         apl_files = [f for f in files if f.lower().endswith('.apl')]
 
         for apl_file in apl_files:
-            apl_file_path = os.path.join(top_folder_directory, apl_file)
-            process_file(apl_file_path)
+            apl_file_path = os.path.join(app_folder, apl_file)
+            process_file(apl_file_path, db_dict)
 
     def test_structure(self, top_folder_directory):
         """
@@ -200,13 +219,21 @@ class SHType(PhoneType):
         
         :param top_folder_directory: Top folder directory to extract games from.
         """
-        files = os.listdir(top_folder_directory)
-        subdirectories = [f for f in files if os.path.isdir(os.path.join(top_folder_directory, f))]
-        if subdirectories:
+        top_files = os.listdir(top_folder_directory)
+        subdirectories = [f for f in top_files if os.path.isdir(os.path.join(top_folder_directory, f))]
+        if not all(d in subdirectories for d in ["DB", "LIST", "STS", "BACKUP"]):
             return None
 
-        apl_scp_files = [f for f in files if f.lower().endswith('.apl') or f.lower().endswith('.scp')]
+        db_folder = os.path.join(top_folder_directory, "DB")
+        if "SHJAMMAIN.DB" not in os.listdir(db_folder):
+            return None
+
+        app_folder = os.path.join(top_folder_directory, "LIST")
+        app_files = os.listdir(app_folder)
+        apl_scp_files = [f for f in app_files if f.lower().endswith('.apl') or f.lower().endswith('.scp')]
         if not apl_scp_files:
             return None
+
+        
 
         return "SH"

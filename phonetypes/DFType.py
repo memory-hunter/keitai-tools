@@ -10,7 +10,7 @@ class DFType(PhoneType):
     
     Description:
     - One top folder containing game folders numbered starting from 00.
-    - Each game folder contains a "jam", "[full/mini]jar" files. If jam doesn't exist, FJJAM.DB is used to reconstruct them.
+    - Each game folder contains a "jam", "[full/mini]jar" files. If jam doesn't exist, FJJAM.DB is used to reconstruct them. (e.g. F2102V)
     - "spX" files are indexed starting from 0, where X is the index.
     """
     
